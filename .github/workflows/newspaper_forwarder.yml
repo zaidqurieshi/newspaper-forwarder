@@ -38,7 +38,7 @@ jobs:
           TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
           TELEGRAM_SESSION_STRING: ${{ secrets.TELEGRAM_SESSION_STRING }}
         run: |
-          python forward_papers.py
+          python -u forward_papers.py
 
       - name: Save forwarding database
         run: |
