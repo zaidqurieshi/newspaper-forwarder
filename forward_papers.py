@@ -16,6 +16,8 @@ from pypdf import PdfReader, PdfWriter
 # ENVIRONMENT
 # ============================================================
 
+from dotenv import load_dotenv
+
 load_dotenv()
 
 api_id = int(os.getenv("TELEGRAM_API_ID"))
@@ -29,7 +31,7 @@ if not session_string:
 
 
 # ============================================================
-# TELEGRAM
+# TELEGRAM CLIENT
 # ============================================================
 
 client = TelegramClient(
@@ -49,10 +51,12 @@ DESTINATION_CHANNEL = -1004486510815
 
 
 # ============================================================
-# ONLY LOOK AT RECENT MESSAGES
+# ONLY PROCESS RECENT MESSAGES
 # ============================================================
 
-MAX_MESSAGE_AGE = timedelta(hours=48)
+MAX_MESSAGE_AGE = timedelta(
+    hours=48
+)
 
 
 # ============================================================
@@ -64,7 +68,9 @@ FORWARDED_FILE = "forwarded_messages.json"
 
 def load_forwarded_messages():
 
-    if not os.path.exists(FORWARDED_FILE):
+    if not os.path.exists(
+        FORWARDED_FILE
+    ):
         return {
             "indian": [],
             "international": []
@@ -80,14 +86,25 @@ def load_forwarded_messages():
 
             data = json.load(file)
 
-        if not isinstance(data, dict):
+        if not isinstance(
+            data,
+            dict
+        ):
+
             return {
                 "indian": [],
                 "international": []
             }
 
-        data.setdefault("indian", [])
-        data.setdefault("international", [])
+        data.setdefault(
+            "indian",
+            []
+        )
+
+        data.setdefault(
+            "international",
+            []
+        )
 
         return data
 
@@ -99,12 +116,16 @@ def load_forwarded_messages():
         }
 
 
-def save_forwarded_messages(data):
+def save_forwarded_messages(
+    data
+):
 
-    temp_file = FORWARDED_FILE + ".tmp"
+    temporary_file = (
+        FORWARDED_FILE + ".tmp"
+    )
 
     with open(
-        temp_file,
+        temporary_file,
         "w",
         encoding="utf-8"
     ) as file:
@@ -116,16 +137,18 @@ def save_forwarded_messages(data):
         )
 
     os.replace(
-        temp_file,
+        temporary_file,
         FORWARDED_FILE
     )
 
 
 # ============================================================
-# MESSAGE AGE
+# RECENT MESSAGE CHECK
 # ============================================================
 
-def is_recent_message(message):
+def is_recent_message(
+    message
+):
 
     if message.date is None:
         return False
@@ -137,6 +160,7 @@ def is_recent_message(message):
     message_date = message.date
 
     if message_date.tzinfo is None:
+
         message_date = message_date.replace(
             tzinfo=timezone.utc
         )
@@ -148,6 +172,8 @@ def is_recent_message(message):
 
 # ============================================================
 # INDIAN NEWSPAPERS
+#
+# Only the desired editions are matched.
 # ============================================================
 
 def identify_indian_paper(
@@ -155,57 +181,145 @@ def identify_indian_paper(
     caption
 ):
 
-    text = f"{filename} {caption}".lower()
+    filename_lower = (
+        filename or ""
+    ).lower()
 
-    # Greater Kashmir
+    caption_lower = (
+        caption or ""
+    ).lower()
+
+    text = (
+        f"{filename_lower} {caption_lower}"
+    )
+
+    # --------------------------------------------------------
+    # GREATER KASHMIR
+    # --------------------------------------------------------
+
     if re.search(
-        r"greater\s+kashmir",
+        r"greater[\s_-]+kashmir",
         text
     ):
+
         return "Greater Kashmir"
 
-    # Times of India — Delhi
+    # --------------------------------------------------------
+    # TIMES OF INDIA — DELHI
+    #
+    # Examples:
+    #
+    # TOI ● Delhi Times ● 16...
+    # TOI Delhi...
+    # Times of India Delhi...
+    #
+    # We deliberately reject other editions.
+    # --------------------------------------------------------
+
     if re.search(
-        r"\btimes\s+of\s+india\b|\btoi\b",
+        r"\btoi\b"
+        r"|times[\s_-]+of[\s_-]+india"
+        r"|the[\s_-]+times[\s_-]+of[\s_-]+india",
         text
     ):
 
         if re.search(
-            r"\bdelhi\b",
+            r"delhi[\s_-]+times"
+            r"|delhi",
             text
         ):
 
-            return "Times of India — Delhi"
+            # Reject clearly non-Delhi editions.
 
-    # Hindustan Times — Delhi
-    if re.search(
-        r"\bhindustan\s+times\b|\bht\b",
-        text
-    ):
-
-        if re.search(
-            r"\bdelhi\b",
-            text
-        ):
-
-            excluded_editions = [
-                "north delhi",
-                "south delhi",
-                "east delhi",
-                "west delhi",
-                "delhi city",
+            excluded = [
+                "kochi",
+                "hyderabad",
+                "goa",
+                "chennai",
+                "bombay",
+                "mumbai",
+                "bangalore",
+                "bengaluru",
+                "kolkata",
+                "pune",
+                "ahmedabad",
             ]
 
             if not any(
                 edition in text
-                for edition in excluded_editions
+                for edition in excluded
+            ):
+
+                return "Times of India — Delhi"
+
+    # --------------------------------------------------------
+    # HINDUSTAN TIMES — DELHI
+    #
+    # Desired:
+    #
+    # HT ● Delhi ● ...
+    #
+    # Reject:
+    #
+    # Delhi City
+    # West Delhi City
+    # South Delhi City
+    # Noida
+    # Gurgaon
+    # Mumbai
+    # Thane
+    # etc.
+    # --------------------------------------------------------
+
+    if re.search(
+        r"\bht\b"
+        r"|hindustan[\s_-]+times"
+        r"|the[\s_-]+hindustan[\s_-]+times",
+        text
+    ):
+
+        # Exact Delhi edition.
+
+        if re.search(
+            r"ht[\s●_-]+delhi[\s●_-]"
+            r"|ht[\s_-]+delhi\b"
+            r"|hindustan[\s_-]+times.*\bdelhi\b",
+            text
+        ):
+
+            excluded = [
+                "delhi city",
+                "west delhi",
+                "south delhi",
+                "east delhi",
+                "north delhi",
+                "noida",
+                "gurgaon",
+                "gurugram",
+                "mumbai",
+                "thane",
+                "navi mumbai",
+                "bengaluru",
+                "bangalore",
+            ]
+
+            if not any(
+                edition in text
+                for edition in excluded
             ):
 
                 return "Hindustan Times — Delhi"
 
-    # Economic Times — Delhi
+    # --------------------------------------------------------
+    # ECONOMIC TIMES — DELHI
+    #
+    # Flexible because we have not yet seen today's exact
+    # filename.
+    # --------------------------------------------------------
+
     if re.search(
-        r"\beconomic\s+times\b|\bet\b",
+        r"\beconomic[\s_-]+times\b"
+        r"|\bet\b",
         text
     ):
 
@@ -214,7 +328,21 @@ def identify_indian_paper(
             text
         ):
 
-            return "Economic Times — Delhi"
+            excluded = [
+                "mumbai",
+                "bangalore",
+                "bengaluru",
+                "hyderabad",
+                "chennai",
+                "kolkata",
+            ]
+
+            if not any(
+                edition in text
+                for edition in excluded
+            ):
+
+                return "Economic Times — Delhi"
 
     return None
 
@@ -228,22 +356,30 @@ def identify_international_paper(
     caption
 ):
 
-    text = f"{filename} {caption}".lower()
+    text = (
+        f"{filename} {caption}"
+    ).lower()
 
-    # Guardian
+    # --------------------------------------------------------
+    # GUARDIAN
+    # --------------------------------------------------------
+
     if re.search(
         r"the[-\s]+guardian",
         text
     ):
 
         if re.search(
-            r"(?:\buk\b|uk[_\s-])",
+            r"\buk\b|uk[_\s-]",
             text
         ):
 
             return "The Guardian"
 
-    # New York Times
+    # --------------------------------------------------------
+    # NEW YORK TIMES
+    # --------------------------------------------------------
+
     if re.search(
         r"\bnyt\b"
         r"|new[-\s]+york[-\s]+times",
@@ -252,16 +388,21 @@ def identify_international_paper(
 
         return "The New York Times"
 
-    # Washington Post
+    # --------------------------------------------------------
+    # WASHINGTON POST
+    # --------------------------------------------------------
+
     if re.search(
-        r"the[-\s]+washington[-\s]+post"
-        r"|washington[-\s]+post",
+        r"washington[-\s]+post",
         text
     ):
 
         return "The Washington Post"
 
-    # The Sun UK
+    # --------------------------------------------------------
+    # THE SUN UK
+    # --------------------------------------------------------
+
     if re.search(
         r"the[-\s]+sun",
         text
@@ -274,28 +415,36 @@ def identify_international_paper(
 
             return "The Sun UK"
 
-    # Financial Times UK
+    # --------------------------------------------------------
+    # FINANCIAL TIMES — UK
+    # --------------------------------------------------------
+
     if re.search(
-        r"\bft\s+uk\b"
+        r"\bft[\s_-]+uk\b"
         r"|financial[-\s]+times[-\s]+uk",
         text
     ):
 
         return "Financial Times — UK"
 
-    # Financial Times US
+    # --------------------------------------------------------
+    # FINANCIAL TIMES — US
+    # --------------------------------------------------------
+
     if re.search(
-        r"\bft\s+us\b"
-        r"|financial[-\s]+times[-\s]+us"
-        r"|financial[-\s]+times[-\s]+usa",
+        r"\bft[\s_-]+us\b"
+        r"|financial[-\s]+times[-\s]+us",
         text
     ):
 
         return "Financial Times — US"
 
-    # Financial Times EU
+    # --------------------------------------------------------
+    # FINANCIAL TIMES — EU
+    # --------------------------------------------------------
+
     if re.search(
-        r"\bft\s+eu\b"
+        r"\bft[\s_-]+eu\b"
         r"|financial[-\s]+times[-\s]+eu"
         r"|financial[-\s]+times[-\s]+europe",
         text
@@ -303,7 +452,10 @@ def identify_international_paper(
 
         return "Financial Times — EU"
 
-    # Wall Street Journal
+    # --------------------------------------------------------
+    # WALL STREET JOURNAL
+    # --------------------------------------------------------
+
     if re.search(
         r"wall[-\s]+street[-\s]+journal"
         r"|wall[-\s]+street[-\s]+jornal",
@@ -312,7 +464,10 @@ def identify_international_paper(
 
         return "The Wall Street Journal"
 
-    # Daily Mirror
+    # --------------------------------------------------------
+    # DAILY MIRROR
+    # --------------------------------------------------------
+
     if re.search(
         r"daily[-\s]+mirror",
         text
@@ -320,7 +475,10 @@ def identify_international_paper(
 
         return "Daily Mirror"
 
-    # Daily Telegraph
+    # --------------------------------------------------------
+    # DAILY TELEGRAPH
+    # --------------------------------------------------------
+
     if re.search(
         r"daily[-\s]+telegraph",
         text
@@ -332,10 +490,12 @@ def identify_international_paper(
 
 
 # ============================================================
-# NEWS TG8 PROMOTIONAL PAGE
+# NEWS TG8 PROMOTIONAL PAGE DETECTION
 # ============================================================
 
-def is_promotional_page(text):
+def is_promotional_page(
+    text
+):
 
     if not text:
         return False
@@ -408,11 +568,19 @@ def clean_indian_pdf(
     ):
 
         try:
-            text = page.extract_text() or ""
+
+            text = (
+                page.extract_text()
+                or ""
+            )
+
         except Exception:
+
             text = ""
 
-        if is_promotional_page(text):
+        if is_promotional_page(
+            text
+        ):
 
             print(
                 f"Promotional page detected "
@@ -421,11 +589,15 @@ def clean_indian_pdf(
             )
 
             removed_pages += 1
+
             continue
 
-        writer.add_page(page)
+        writer.add_page(
+            page
+        )
 
-    # Safety check
+    # Never create an empty PDF.
+
     if len(writer.pages) == 0:
 
         print(
@@ -437,7 +609,10 @@ def clean_indian_pdf(
         writer = PdfWriter()
 
         for page in reader.pages:
-            writer.add_page(page)
+
+            writer.add_page(
+                page
+            )
 
         removed_pages = 0
 
@@ -454,15 +629,17 @@ def clean_indian_pdf(
 
 
 # ============================================================
-# DOWNLOAD + CLEAN INDIAN PDF
+# PREPARE INDIAN PDF
 # ============================================================
 
 async def prepare_indian_pdf(
     message
 ):
 
-    temporary_directory = tempfile.mkdtemp(
-        prefix="newspaper_"
+    temporary_directory = (
+        tempfile.mkdtemp(
+            prefix="newspaper_"
+        )
     )
 
     original_filename = (
@@ -490,13 +667,9 @@ async def prepare_indian_pdf(
         flush=True
     )
 
-    cleaned_filename = (
-        "cleaned_" + original_filename
-    )
-
     cleaned_path = os.path.join(
         temporary_directory,
-        cleaned_filename
+        "cleaned_" + original_filename
     )
 
     print(
@@ -552,6 +725,7 @@ def cleanup_directory(
         )
 
     except Exception:
+
         pass
 
 
@@ -606,7 +780,9 @@ async def main():
         flush=True
     )
 
-    forwarded = load_forwarded_messages()
+    forwarded = (
+        load_forwarded_messages()
+    )
 
     forwarded_indian = set(
         int(x)
@@ -790,12 +966,11 @@ async def main():
 
         try:
 
-            # =================================================
+            # ------------------------------------------------
             # INDIAN
             #
-            # Must download because we need to remove the
-            # promotional page.
-            # =================================================
+            # Download only because the PDF must be cleaned.
+            # ------------------------------------------------
 
             if source_type == "indian":
 
@@ -831,13 +1006,11 @@ async def main():
                     forwarded_indian
                 )
 
-            # =================================================
+            # ------------------------------------------------
             # INTERNATIONAL
             #
             # DO NOT DOWNLOAD.
-            #
-            # Reuse the Telegram media directly.
-            # =================================================
+            # ------------------------------------------------
 
             else:
 
@@ -853,9 +1026,9 @@ async def main():
                     forwarded_international
                 )
 
-            # =================================================
-            # SAVE DATABASE ONLY AFTER SUCCESS
-            # =================================================
+            # ------------------------------------------------
+            # Only mark successful uploads.
+            # ------------------------------------------------
 
             save_forwarded_messages(
                 forwarded
@@ -918,7 +1091,7 @@ async def main():
 
 
 # ============================================================
-# ONLY START WHEN RUN DIRECTLY
+# ONLY RUN WHEN EXECUTED DIRECTLY
 # ============================================================
 
 if __name__ == "__main__":
