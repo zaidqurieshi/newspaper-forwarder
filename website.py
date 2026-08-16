@@ -4,8 +4,12 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import (
+    HTMLResponse,
+    StreamingResponse,
+)
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from telethon import TelegramClient
 from telethon.sessions import StringSession
@@ -17,11 +21,22 @@ from telethon.sessions import StringSession
 
 load_dotenv()
 
-API_ID = int(os.getenv("TELEGRAM_API_ID"))
-API_HASH = os.getenv("TELEGRAM_API_HASH")
-SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING")
+API_ID = int(
+    os.getenv("TELEGRAM_API_ID")
+)
+
+API_HASH = os.getenv(
+    "TELEGRAM_API_HASH"
+)
+
+SESSION_STRING = os.getenv(
+    "TELEGRAM_SESSION_STRING"
+)
+
 DESTINATION_CHANNEL = int(
-    os.getenv("TELEGRAM_DESTINATION_CHANNEL")
+    os.getenv(
+        "TELEGRAM_DESTINATION_CHANNEL"
+    )
 )
 
 
@@ -29,15 +44,19 @@ DESTINATION_CHANNEL = int(
 # CONFIGURATION CHECK
 # ============================================================
 
-if not API_HASH:
-    raise RuntimeError("TELEGRAM_API_HASH is missing")
-
 if not SESSION_STRING:
-    raise RuntimeError("TELEGRAM_SESSION_STRING is missing")
+    raise RuntimeError(
+        "TELEGRAM_SESSION_STRING is missing."
+    )
+
+if not API_HASH:
+    raise RuntimeError(
+        "TELEGRAM_API_HASH is missing."
+    )
 
 if not DESTINATION_CHANNEL:
     raise RuntimeError(
-        "TELEGRAM_DESTINATION_CHANNEL is missing"
+        "TELEGRAM_DESTINATION_CHANNEL is missing."
     )
 
 
@@ -46,8 +65,27 @@ if not DESTINATION_CHANNEL:
 # ============================================================
 
 app = FastAPI(
-    title="Newspaper Library",
-    description="Telegram-backed newspaper library"
+    title="Paperdrop",
+    description="Open Source News Archive"
+)
+
+
+# ============================================================
+# STATIC FILES
+#
+# This serves:
+#
+# /static/favicon.png
+#
+# from:
+#
+# static/favicon.png
+# ============================================================
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
 )
 
 
@@ -61,14 +99,55 @@ templates = Jinja2Templates(
 
 
 # ============================================================
-# TELEGRAM
+# TELEGRAM CLIENT
 # ============================================================
 
 telegram = TelegramClient(
-    StringSession(SESSION_STRING),
+    StringSession(
+        SESSION_STRING
+    ),
     API_ID,
     API_HASH
 )
+
+
+# ============================================================
+# TELEGRAM CONNECTION
+# ============================================================
+
+async def ensure_telegram_connected():
+
+    if telegram.is_connected():
+        return
+
+    print(
+        "Telegram disconnected. Reconnecting...",
+        flush=True
+    )
+
+    try:
+
+        await telegram.connect()
+
+    except Exception as error:
+
+        print(
+            f"Telegram reconnect failed: {error}",
+            flush=True
+        )
+
+        raise
+
+    if not await telegram.is_user_authorized():
+
+        raise RuntimeError(
+            "Telegram session is not authorized."
+        )
+
+    print(
+        "Telegram reconnected successfully.",
+        flush=True
+    )
 
 
 # ============================================================
@@ -110,31 +189,32 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
 
-    print(
-        "Disconnecting from Telegram...",
-        flush=True
-    )
+    if telegram.is_connected():
 
-    await telegram.disconnect()
+        await telegram.disconnect()
 
-    print(
-        "Telegram disconnected.",
-        flush=True
-    )
+        print(
+            "Telegram disconnected.",
+            flush=True
+        )
 
 
 # ============================================================
 # DISPLAY NAME
 # ============================================================
 
-def clean_display_name(filename):
+def clean_display_name(
+    filename
+):
 
     if not filename:
         return "Newspaper"
 
     name = filename.strip()
 
-    if name.lower().endswith(".pdf"):
+    if name.lower().endswith(
+        ".pdf"
+    ):
         name = name[:-4]
 
     return name
@@ -144,7 +224,9 @@ def clean_display_name(filename):
 # CATEGORY
 # ============================================================
 
-def identify_category(filename):
+def identify_category(
+    filename
+):
 
     text = (
         filename or ""
@@ -176,7 +258,9 @@ def identify_category(filename):
 # DATE
 # ============================================================
 
-def format_date(message):
+def format_date(
+    message
+):
 
     if not message.date:
         return ""
@@ -189,65 +273,152 @@ def format_date(message):
 # ============================================================
 # GET NEWSPAPERS
 #
-# IMPORTANT:
-#
 # Only Telegram metadata is read.
 #
-# PDFs are NOT downloaded here.
+# NO thumbnails.
+# NO PDF downloads here.
 # ============================================================
 
 async def get_newspapers():
 
+    await ensure_telegram_connected()
+
     newspapers = []
 
-    async for message in telegram.iter_messages(
-        DESTINATION_CHANNEL,
-        limit=500
-    ):
+    try:
 
-        if not message.file:
-            continue
+        async for message in telegram.iter_messages(
+            DESTINATION_CHANNEL,
+            limit=500
+        ):
 
-        filename = (
-            message.file.name or ""
+            if not message.file:
+                continue
+
+            filename = (
+                message.file.name
+                or ""
+            )
+
+            if not filename.lower().endswith(
+                ".pdf"
+            ):
+                continue
+
+            newspapers.append({
+
+                "id":
+                    message.id,
+
+                "filename":
+                    filename,
+
+                "name":
+                    clean_display_name(
+                        filename
+                    ),
+
+                "date":
+                    format_date(
+                        message
+                    ),
+
+                "category":
+                    identify_category(
+                        filename
+                    ),
+
+                "size":
+                    message.file.size,
+
+            })
+
+    except Exception as error:
+
+        print(
+            f"Telegram newspaper read failed: "
+            f"{error}",
+            flush=True
         )
 
-        if not filename.lower().endswith(".pdf"):
-            continue
+        # ----------------------------------------------------
+        # RECONNECT AND RETRY ONCE
+        # ----------------------------------------------------
 
-        newspapers.append({
+        try:
 
-            "id":
-                message.id,
+            await telegram.disconnect()
 
-            "filename":
-                filename,
+        except Exception:
+            pass
 
-            "name":
-                clean_display_name(
-                    filename
-                ),
+        await telegram.connect()
 
-            "date":
-                format_date(
-                    message
-                ),
+        if not await telegram.is_user_authorized():
 
-            "category":
-                identify_category(
-                    filename
-                ),
+            raise RuntimeError(
+                "Telegram session is not authorized."
+            )
 
-            "size":
-                message.file.size,
+        print(
+            "Telegram reconnected. "
+            "Retrying newspaper list...",
+            flush=True
+        )
 
-        })
+        newspapers = []
+
+        async for message in telegram.iter_messages(
+            DESTINATION_CHANNEL,
+            limit=500
+        ):
+
+            if not message.file:
+                continue
+
+            filename = (
+                message.file.name
+                or ""
+            )
+
+            if not filename.lower().endswith(
+                ".pdf"
+            ):
+                continue
+
+            newspapers.append({
+
+                "id":
+                    message.id,
+
+                "filename":
+                    filename,
+
+                "name":
+                    clean_display_name(
+                        filename
+                    ),
+
+                "date":
+                    format_date(
+                        message
+                    ),
+
+                "category":
+                    identify_category(
+                        filename
+                    ),
+
+                "size":
+                    message.file.size,
+
+            })
 
     return newspapers
 
 
 # ============================================================
-# HOME
+# HOME PAGE
 # ============================================================
 
 @app.get(
@@ -302,12 +473,10 @@ async def home(
 # ============================================================
 # DOWNLOAD PDF
 #
-# IMPORTANT:
-#
 # The PDF is streamed directly from Telegram.
 #
-# It is NOT saved to disk.
-# It is NOT stored in a database.
+# Nothing is saved to disk.
+# No thumbnails are generated.
 # ============================================================
 
 @app.get(
@@ -317,16 +486,55 @@ async def download_pdf(
     message_id: int
 ):
 
-    print(
-        f"Download requested: "
-        f"Telegram message {message_id}",
-        flush=True
-    )
+    await ensure_telegram_connected()
 
-    message = await telegram.get_messages(
-        DESTINATION_CHANNEL,
-        ids=message_id
-    )
+    # --------------------------------------------------------
+    # FIND TELEGRAM MESSAGE
+    # --------------------------------------------------------
+
+    try:
+
+        message = await telegram.get_messages(
+
+            DESTINATION_CHANNEL,
+
+            ids=message_id
+
+        )
+
+    except Exception as error:
+
+        print(
+            f"Telegram message lookup failed: "
+            f"{error}",
+            flush=True
+        )
+
+        # ----------------------------------------------------
+        # RECONNECT AND RETRY
+        # ----------------------------------------------------
+
+        try:
+            await telegram.disconnect()
+        except Exception:
+            pass
+
+        await telegram.connect()
+
+        if not await telegram.is_user_authorized():
+
+            raise HTTPException(
+                status_code=500,
+                detail="Telegram session is not authorized."
+            )
+
+        message = await telegram.get_messages(
+
+            DESTINATION_CHANNEL,
+
+            ids=message_id
+
+        )
 
     if not message:
 
@@ -344,36 +552,49 @@ async def download_pdf(
 
     filename = (
         message.file.name
-        or
-        f"newspaper-{message_id}.pdf"
+        or f"newspaper-{message_id}.pdf"
     )
 
-    if not filename.lower().endswith(".pdf"):
+    if not filename.lower().endswith(
+        ".pdf"
+    ):
+
         filename += ".pdf"
 
     print(
-        f"Streaming PDF: {filename}",
+        f"Streaming PDF: "
+        f"{filename}",
         flush=True
     )
 
 
     # ========================================================
-    # TELEGRAM STREAM
+    # TELEGRAM PDF STREAM
     # ========================================================
 
     async def stream_pdf():
 
+        await ensure_telegram_connected()
+
         iterator = telegram.iter_download(
+
             message.media,
-            request_size=1024 * 1024,
-            chunk_size=1024 * 1024
+
+            request_size=
+                1024 * 1024,
+
+            chunk_size=
+                1024 * 1024
+
         )
 
         try:
 
             async for chunk in iterator:
 
-                yield bytes(chunk)
+                yield bytes(
+                    chunk
+                )
 
         finally:
 
@@ -391,13 +612,17 @@ async def download_pdf(
                     result,
                     "__await__"
                 ):
+
                     await result
 
+
+    # ========================================================
+    # RESPONSE HEADERS
+    # ========================================================
 
     encoded_filename = quote(
         filename
     )
-
 
     headers = {
 
@@ -416,6 +641,10 @@ async def download_pdf(
 
     }
 
+
+    # ========================================================
+    # STREAM RESPONSE
+    # ========================================================
 
     return StreamingResponse(
 
@@ -451,10 +680,15 @@ async def search(
     for paper in newspapers:
 
         searchable = (
+
             f"{paper['name']} "
+
             f"{paper['filename']} "
+
             f"{paper['category']} "
+
             f"{paper['date']}"
+
         ).lower()
 
         if q in searchable:
