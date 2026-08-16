@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -12,27 +10,28 @@
 
     <title>Newspaper Library</title>
 
+    <meta
+        name="description"
+        content="Telegram-backed newspaper library"
+    >
 
     <style>
 
         /* =====================================================
            RESET
-           ===================================================== */
+        ===================================================== */
 
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-
 
         html {
             scroll-behavior: smooth;
         }
 
-
         body {
-
-            margin: 0;
-
             min-height: 100vh;
 
             font-family:
@@ -42,128 +41,36 @@
                 "Segoe UI",
                 sans-serif;
 
-            color: #f8fafc;
+            color: #ffffff;
 
             background:
-                #050608;
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(99, 102, 241, 0.18),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(168, 85, 247, 0.14),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 50% 90%,
+                    rgba(59, 130, 246, 0.10),
+                    transparent 30%
+                ),
+                #07080c;
 
             overflow-x: hidden;
         }
 
 
         /* =====================================================
-           AMBIENT BACKGROUND
-           ===================================================== */
+           BACKGROUND
+        ===================================================== */
 
         body::before {
-
             content: "";
-
-            position: fixed;
-
-            width: 650px;
-
-            height: 650px;
-
-            left: -250px;
-
-            top: -200px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(69, 105, 255, 0.28),
-                    transparent 68%
-                );
-
-            filter: blur(35px);
-
-            pointer-events: none;
-
-            z-index: -3;
-
-            animation:
-                ambientOne 14s ease-in-out infinite
-                alternate;
-        }
-
-
-        body::after {
-
-            content: "";
-
-            position: fixed;
-
-            width: 700px;
-
-            height: 700px;
-
-            right: -300px;
-
-            bottom: -250px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(145, 75, 255, 0.24),
-                    transparent 68%
-                );
-
-            filter: blur(45px);
-
-            pointer-events: none;
-
-            z-index: -3;
-
-            animation:
-                ambientTwo 17s ease-in-out infinite
-                alternate;
-        }
-
-
-        @keyframes ambientOne {
-
-            from {
-                transform:
-                    translate3d(0, 0, 0)
-                    scale(1);
-            }
-
-            to {
-                transform:
-                    translate3d(100px, 80px, 0)
-                    scale(1.15);
-            }
-
-        }
-
-
-        @keyframes ambientTwo {
-
-            from {
-                transform:
-                    translate3d(0, 0, 0)
-                    scale(1);
-            }
-
-            to {
-                transform:
-                    translate3d(-100px, -80px, 0)
-                    scale(1.12);
-            }
-
-        }
-
-
-        /* =====================================================
-           NOISE / TEXTURE
-           ===================================================== */
-
-        .noise {
 
             position: fixed;
 
@@ -171,1382 +78,1501 @@
 
             pointer-events: none;
 
-            opacity: 0.035;
-
-            z-index: 999;
-
             background-image:
-                url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
-        }
-
-
-        /* =====================================================
-           GLASS
-           ===================================================== */
-
-        .glass {
-
-            background:
                 linear-gradient(
-                    135deg,
-                    rgba(255,255,255,0.10),
-                    rgba(255,255,255,0.035)
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
                 );
 
-            border:
-                1px solid
-                rgba(255,255,255,0.12);
+            background-size: 48px 48px;
 
-            box-shadow:
-                inset 0 1px 0
-                rgba(255,255,255,0.08),
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 85%
+                );
 
-                0 25px 80px
-                rgba(0,0,0,0.35);
-
-            backdrop-filter:
-                blur(24px)
-                saturate(130%);
-
-            -webkit-backdrop-filter:
-                blur(24px)
-                saturate(130%);
+            z-index: -2;
         }
 
 
-        /* =====================================================
-           NAVIGATION
-           ===================================================== */
-
-        .nav {
-
+        .ambient {
             position: fixed;
 
-            top: 18px;
+            width: 420px;
+            height: 420px;
 
-            left: 50%;
+            border-radius: 50%;
 
-            transform:
-                translateX(-50%);
+            filter: blur(100px);
 
-            width:
-                min(
-                    calc(100% - 30px),
-                    1180px
-                );
+            opacity: 0.12;
 
-            height: 64px;
+            pointer-events: none;
 
-            z-index: 500;
+            z-index: -1;
+        }
 
+        .ambient.one {
+            top: -180px;
+            left: -150px;
+            background: #6366f1;
+        }
+
+        .ambient.two {
+            top: 35%;
+            right: -200px;
+            background: #a855f7;
+        }
+
+        .ambient.three {
+            bottom: -200px;
+            left: 30%;
+            background: #2563eb;
+        }
+
+
+        /* =====================================================
+           CONTAINER
+        ===================================================== */
+
+        .container {
+            width: min(
+                1400px,
+                calc(100% - 40px)
+            );
+
+            margin: 0 auto;
+        }
+
+
+        /* =====================================================
+           NAVBAR
+        ===================================================== */
+
+        .navbar {
+            position: sticky;
+
+            top: 16px;
+
+            z-index: 100;
+
+            margin-top: 16px;
+
+            padding: 14px 18px;
+
+            border: 1px solid
+                rgba(255,255,255,0.10);
+
+            border-radius: 18px;
+
+            background:
+                rgba(12, 14, 20, 0.68);
+
+            backdrop-filter:
+                blur(24px);
+
+            -webkit-backdrop-filter:
+                blur(24px);
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.28);
+        }
+
+        .nav-inner {
             display: flex;
 
             align-items: center;
 
             justify-content: space-between;
 
-            padding:
-                0 10px 0 20px;
-
-            border-radius: 999px;
-
-            background:
-                rgba(10,12,18,0.68);
-
-            border:
-                1px solid
-                rgba(255,255,255,0.12);
-
-            backdrop-filter:
-                blur(25px)
-                saturate(150%);
-
-            -webkit-backdrop-filter:
-                blur(25px)
-                saturate(150%);
-
-            box-shadow:
-                0 15px 50px
-                rgba(0,0,0,0.35);
+            gap: 20px;
         }
 
 
-        .brand {
+        /* =====================================================
+           LOGO
+        ===================================================== */
 
+        .logo {
             display: flex;
 
             align-items: center;
 
-            gap: 10px;
-
-            color: white;
+            gap: 12px;
 
             text-decoration: none;
 
-            font-weight: 800;
+            color: white;
 
-            letter-spacing: -0.3px;
+            min-width: 0;
         }
 
-
-        .brand-icon {
-
-            width: 36px;
-
-            height: 36px;
+        .logo-mark {
+            width: 42px;
+            height: 42px;
 
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
-            border-radius: 50%;
+            flex-shrink: 0;
+
+            border-radius: 13px;
+
+            font-size: 20px;
 
             background:
                 linear-gradient(
                     135deg,
-                    #647cff,
-                    #a855f7
+                    rgba(99,102,241,0.95),
+                    rgba(168,85,247,0.9)
                 );
 
             box-shadow:
-                0 0 25px
-                rgba(99,102,241,0.45);
+                0 10px 30px
+                rgba(99,102,241,0.25);
+        }
+
+        .logo-text {
+            font-size: 16px;
+
+            font-weight: 750;
+
+            letter-spacing: -0.3px;
+        }
+
+        .logo-subtitle {
+            color: #8b91a1;
+
+            font-size: 11px;
+
+            margin-top: 2px;
         }
 
 
-        .nav-links {
+        /* =====================================================
+           NAV STATUS
+        ===================================================== */
 
+        .status {
             display: flex;
 
             align-items: center;
 
             gap: 8px;
+
+            color: #a5acba;
+
+            font-size: 12px;
+
+            white-space: nowrap;
         }
 
+        .status-dot {
+            width: 7px;
+            height: 7px;
 
-        .nav-link {
+            border-radius: 50%;
 
-            color:
-                rgba(255,255,255,0.65);
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            padding:
-                9px 14px;
-
-            border-radius: 999px;
-
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
-        }
-
-
-        .nav-link:hover {
-
-            color: white;
-
-            background:
-                rgba(255,255,255,0.08);
-        }
-
-
-        .nav-cta {
-
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding:
-                10px 17px;
-
-            border-radius: 999px;
-
-            color: white;
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #536dfe,
-                    #8b5cf6
-                );
+            background: #22c55e;
 
             box-shadow:
-                0 0 25px
-                rgba(99,102,241,0.30);
+                0 0 12px
+                rgba(34,197,94,0.8);
         }
 
 
         /* =====================================================
            HERO
-           ===================================================== */
+        ===================================================== */
 
         .hero {
-
-            min-height: 88vh;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            text-align: center;
-
             padding:
-                150px 20px 100px;
-
-            position: relative;
+                90px 0
+                55px;
         }
 
+        .hero-grid {
+            display: grid;
 
-        .hero-content {
+            grid-template-columns:
+                minmax(0, 1.5fr)
+                minmax(280px, 0.7fr);
 
-            max-width: 900px;
+            gap: 45px;
 
-            position: relative;
-
-            z-index: 2;
+            align-items: end;
         }
-
 
         .eyebrow {
-
             display: inline-flex;
 
             align-items: center;
 
             gap: 8px;
 
-            padding:
-                8px 14px;
+            padding: 7px 11px;
+
+            margin-bottom: 20px;
+
+            border: 1px solid
+                rgba(255,255,255,0.10);
 
             border-radius: 999px;
 
-            color:
-                rgba(255,255,255,0.70);
+            background:
+                rgba(255,255,255,0.045);
 
-            font-size: 12px;
+            color: #aeb5c5;
 
-            font-weight: 600;
+            font-size: 11px;
 
             letter-spacing: 0.4px;
 
-            background:
-                rgba(255,255,255,0.055);
-
-            border:
-                1px solid
-                rgba(255,255,255,0.10);
-
-            backdrop-filter:
-                blur(15px);
+            text-transform: uppercase;
         }
 
-
         .eyebrow-dot {
-
-            width: 7px;
-
-            height: 7px;
+            width: 6px;
+            height: 6px;
 
             border-radius: 50%;
 
-            background:
-                #7c8cff;
+            background: #8b5cf6;
 
             box-shadow:
                 0 0 12px
-                #7c8cff;
+                rgba(139,92,246,0.9);
         }
 
-
         .hero h1 {
-
-            margin:
-                28px 0 20px;
+            max-width: 850px;
 
             font-size:
                 clamp(
-                    48px,
-                    8vw,
-                    96px
+                    44px,
+                    7vw,
+                    92px
                 );
 
-            line-height:
-                0.95;
+            line-height: 0.96;
 
-            letter-spacing:
-                -5px;
+            letter-spacing: -5px;
 
             font-weight: 800;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #ffffff 0%,
-                    #cbd5e1 55%,
-                    #6b7280 100%
-                );
-
-            -webkit-background-clip:
-                text;
-
-            background-clip:
-                text;
-
-            color:
-                transparent;
-
-            text-shadow:
-                0 20px 80px
-                rgba(255,255,255,0.08);
         }
 
+        .gradient-text {
+            background:
+                linear-gradient(
+                    100deg,
+                    #ffffff 5%,
+                    #c4b5fd 45%,
+                    #818cf8 85%
+                );
 
-        .hero p {
+            -webkit-background-clip: text;
+            background-clip: text;
 
-            max-width: 600px;
+            color: transparent;
+        }
 
-            margin:
-                0 auto;
+        .hero-description {
+            max-width: 680px;
 
-            color:
-                rgba(255,255,255,0.52);
+            margin-top: 25px;
 
-            font-size: 18px;
+            color: #969dac;
+
+            font-size: 16px;
 
             line-height: 1.7;
         }
 
 
-        .hero-actions {
+        /* =====================================================
+           STATS
+        ===================================================== */
 
-            display: flex;
+        .stats {
+            display: grid;
 
-            justify-content: center;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
 
             gap: 12px;
-
-            margin-top: 35px;
-
-            flex-wrap: wrap;
         }
 
-
-        .hero-button {
-
-            padding:
-                13px 20px;
-
-            border-radius: 999px;
-
-            color: white;
-
-            text-decoration: none;
-
-            font-weight: 700;
-
-            font-size: 14px;
+        .stat {
+            padding: 20px;
 
             border:
                 1px solid
-                rgba(255,255,255,0.12);
+                rgba(255,255,255,0.09);
+
+            border-radius: 18px;
 
             background:
-                rgba(255,255,255,0.07);
+                rgba(255,255,255,0.035);
 
             backdrop-filter:
-                blur(15px);
+                blur(20px);
 
-            transition:
-                transform 0.2s ease,
-                background 0.2s ease;
+            -webkit-backdrop-filter:
+                blur(20px);
         }
 
+        .stat-number {
+            font-size: 28px;
 
-        .hero-button.primary {
+            font-weight: 750;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #536dfe,
-                    #8b5cf6
-                );
-
-            border-color:
-                rgba(255,255,255,0.20);
+            letter-spacing: -1px;
         }
 
+        .stat-label {
+            margin-top: 5px;
 
-        .hero-button:hover {
+            color: #7f8797;
 
-            transform:
-                translateY(-3px);
+            font-size: 11px;
 
-            background:
-                rgba(255,255,255,0.12);
-        }
+            text-transform: uppercase;
 
-
-        .hero-button.primary:hover {
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #647cff,
-                    #9b6cff
-                );
+            letter-spacing: 0.7px;
         }
 
 
         /* =====================================================
-           FLOATING ORB
-           ===================================================== */
+           SEARCH
+        ===================================================== */
 
-        .hero-orb {
-
-            position: absolute;
-
-            width: 380px;
-
-            height: 380px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle at 30% 25%,
-                    rgba(255,255,255,0.45),
-                    transparent 12%
-                ),
-                radial-gradient(
-                    circle at 50% 50%,
-                    rgba(87,106,255,0.32),
-                    rgba(104,54,214,0.10) 45%,
-                    transparent 70%
-                );
-
-            filter:
-                blur(2px);
-
-            opacity:
-                0.85;
-
-            pointer-events: none;
-
-            animation:
-                orbFloat 8s ease-in-out infinite
-                alternate;
+        .search-area {
+            margin-bottom: 50px;
         }
 
-
-        @keyframes orbFloat {
-
-            from {
-                transform:
-                    translate3d(
-                        -80px,
-                        20px,
-                        0
-                    );
-            }
-
-            to {
-                transform:
-                    translate3d(
-                        80px,
-                        -25px,
-                        0
-                    );
-            }
-
+        .search-box {
+            position: relative;
         }
-
-
-        /* =====================================================
-           SEARCH AREA
-           ===================================================== */
-
-        .library {
-
-            width:
-                min(
-                    calc(100% - 30px),
-                    1200px
-                );
-
-            margin:
-                0 auto;
-
-            padding-bottom:
-                120px;
-        }
-
-
-        .search-panel {
-
-            padding:
-                12px;
-
-            border-radius:
-                20px;
-
-            margin-bottom:
-                55px;
-
-            position:
-                sticky;
-
-            top:
-                98px;
-
-            z-index:
-                50;
-        }
-
-
-        .search {
-
-            width: 100%;
-
-            height: 54px;
-
-            padding:
-                0 20px 0 50px;
-
-            color: white;
-
-            font-size: 15px;
-
-            outline: none;
-
-            border: none;
-
-            border-radius:
-                13px;
-
-            background:
-                rgba(255,255,255,0.055);
-
-            border:
-                1px solid
-                rgba(255,255,255,0.07);
-
-        }
-
-
-        .search::placeholder {
-
-            color:
-                rgba(255,255,255,0.38);
-        }
-
-
-        .search:focus {
-
-            border-color:
-                rgba(115,130,255,0.45);
-
-            box-shadow:
-                0 0 0 3px
-                rgba(99,102,241,0.10);
-        }
-
-
-        .search-wrap {
-
-            position:
-                relative;
-        }
-
 
         .search-icon {
+            position: absolute;
 
-            position:
-                absolute;
-
-            left:
-                18px;
-
-            top:
-                50%;
+            left: 19px;
+            top: 50%;
 
             transform:
                 translateY(-50%);
 
-            opacity:
-                0.45;
+            color: #707889;
 
-            pointer-events:
-                none;
+            font-size: 17px;
+
+            pointer-events: none;
         }
 
+        .search-input {
+            width: 100%;
 
-        /* =====================================================
-           STATS
-           ===================================================== */
-
-        .stats {
-
-            display:
-                grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap:
-                15px;
-
-            margin-bottom:
-                70px;
-        }
-
-
-        .stat {
+            height: 58px;
 
             padding:
-                22px;
+                0 20px 0 50px;
 
-            border-radius:
-                20px;
+            border:
+                1px solid
+                rgba(255,255,255,0.10);
+
+            outline: none;
+
+            border-radius: 17px;
+
+            background:
+                rgba(255,255,255,0.045);
+
+            color: white;
+
+            font-size: 14px;
+
+            backdrop-filter:
+                blur(20px);
+
+            -webkit-backdrop-filter:
+                blur(20px);
+
+            transition:
+                border-color .2s,
+                box-shadow .2s,
+                background .2s;
         }
 
-
-        .stat-number {
-
-            font-size:
-                30px;
-
-            font-weight:
-                800;
-
-            color:
-                white;
+        .search-input::placeholder {
+            color: #6f7685;
         }
 
+        .search-input:focus {
+            border-color:
+                rgba(129,140,248,0.55);
 
-        .stat-label {
+            background:
+                rgba(255,255,255,0.06);
 
-            margin-top:
-                4px;
-
-            color:
-                rgba(255,255,255,0.42);
-
-            font-size:
-                13px;
+            box-shadow:
+                0 0 0 4px
+                rgba(99,102,241,0.08);
         }
 
 
         /* =====================================================
            SECTION
-           ===================================================== */
+        ===================================================== */
 
         .section {
-
-            margin-bottom:
-                90px;
+            margin-bottom: 65px;
         }
 
+        .section-header {
+            display: flex;
 
-        .section-heading {
+            align-items: end;
 
-            display:
-                flex;
+            justify-content: space-between;
 
-            align-items:
-                flex-end;
+            gap: 20px;
 
-            justify-content:
-                space-between;
-
-            margin-bottom:
-                25px;
+            margin-bottom: 20px;
         }
-
 
         .section-title {
+            font-size: 23px;
 
-            margin: 0;
+            font-weight: 750;
 
-            font-size:
-                clamp(30px, 4vw, 48px);
-
-            letter-spacing:
-                -2px;
-
-            line-height:
-                1;
-
-            font-weight:
-                800;
+            letter-spacing: -0.7px;
         }
-
 
         .section-description {
+            margin-top: 5px;
 
-            margin:
-                8px 0 0;
+            color: #6f7787;
 
-            color:
-                rgba(255,255,255,0.40);
-
-            font-size:
-                14px;
+            font-size: 12px;
         }
 
-
         .section-count {
+            color: #737b8c;
 
-            color:
-                rgba(255,255,255,0.35);
-
-            font-size:
-                13px;
+            font-size: 12px;
         }
 
 
         /* =====================================================
            NEWSPAPER GRID
-           ===================================================== */
+        ===================================================== */
 
-        .grid {
-
-            display:
-                grid;
+        .papers-grid {
+            display: grid;
 
             grid-template-columns:
                 repeat(
-                    auto-fill,
-                    minmax(270px, 1fr)
+                    4,
+                    minmax(0, 1fr)
                 );
 
-            gap:
-                20px;
+            gap: 15px;
         }
 
 
         /* =====================================================
-           NEWSPAPER CARD
-           ===================================================== */
+           PAPER CARD
+        ===================================================== */
 
-        .card {
+        .paper-card {
+            position: relative;
 
-            position:
-                relative;
+            min-height: 245px;
 
-            overflow:
-                hidden;
+            display: flex;
 
-            border-radius:
-                22px;
+            flex-direction: column;
+
+            padding: 22px;
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.085);
+
+            border-radius: 22px;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(255,255,255,0.105),
-                    rgba(255,255,255,0.035)
+                    rgba(255,255,255,0.065),
+                    rgba(255,255,255,0.025)
                 );
 
-            border:
-                1px solid
-                rgba(255,255,255,0.11);
-
-            box-shadow:
-                0 25px 70px
-                rgba(0,0,0,0.35),
-
-                inset 0 1px 0
-                rgba(255,255,255,0.08);
-
             backdrop-filter:
-                blur(20px)
-                saturate(130%);
+                blur(24px);
 
             -webkit-backdrop-filter:
-                blur(20px)
-                saturate(130%);
-
-            transition:
-                transform 0.35s cubic-bezier(.2,.8,.2,1),
-                border-color 0.3s ease,
-                box-shadow 0.3s ease;
-        }
-
-
-        .card:hover {
-
-            transform:
-                translateY(-8px)
-                rotateX(1deg);
-
-            border-color:
-                rgba(255,255,255,0.22);
+                blur(24px);
 
             box-shadow:
-                0 35px 90px
-                rgba(0,0,0,0.48),
-
-                0 0 50px
-                rgba(79,70,229,0.08);
-        }
-
-
-        /* =====================================================
-           THUMBNAIL
-           ===================================================== */
-
-        .thumbnail {
-
-            height:
-                390px;
-
-            overflow:
-                hidden;
-
-            background:
-                #111318;
-
-            position:
-                relative;
-        }
-
-
-        .thumbnail img {
-
-            display:
-                block;
-
-            width:
-                100%;
-
-            height:
-                100%;
-
-            object-fit:
-                cover;
+                inset 0 1px 0
+                rgba(255,255,255,0.035),
+                0 15px 40px
+                rgba(0,0,0,0.18);
 
             transition:
-                transform 0.6s
-                cubic-bezier(.2,.8,.2,1);
+                transform .25s ease,
+                border-color .25s ease,
+                background .25s ease,
+                box-shadow .25s ease;
         }
 
+        .paper-card::before {
+            content: "";
 
-        .card:hover
-        .thumbnail img {
+            position: absolute;
 
+            width: 150px;
+            height: 150px;
+
+            top: -90px;
+            right: -70px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(99,102,241,0.12);
+
+            filter: blur(30px);
+
+            pointer-events: none;
+        }
+
+        .paper-card:hover {
             transform:
-                scale(1.035);
-        }
+                translateY(-5px);
 
-
-        .thumbnail::after {
-
-            content:
-                "";
-
-            position:
-                absolute;
-
-            inset:
-                0;
+            border-color:
+                rgba(129,140,248,0.25);
 
             background:
                 linear-gradient(
-                    180deg,
-                    transparent 55%,
-                    rgba(0,0,0,0.30)
+                    145deg,
+                    rgba(255,255,255,0.085),
+                    rgba(255,255,255,0.035)
                 );
 
-            pointer-events:
-                none;
+            box-shadow:
+                inset 0 1px 0
+                rgba(255,255,255,0.05),
+                0 25px 60px
+                rgba(0,0,0,0.3);
         }
 
 
         /* =====================================================
-           CARD CONTENT
+           PAPER ICON
            ===================================================== */
 
-        .card-body {
+        .paper-icon {
+            width: 52px;
+            height: 52px;
 
-            padding:
-                20px;
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 24px;
+
+            border-radius: 15px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            background:
+                rgba(255,255,255,0.05);
+
+            color: #b7a7ff;
+
+            font-size: 22px;
+
+            box-shadow:
+                inset 0 1px 0
+                rgba(255,255,255,0.04);
         }
 
+
+        /* =====================================================
+           PAPER INFORMATION
+        ===================================================== */
 
         .paper-name {
+            font-size: 17px;
 
-            font-size:
-                18px;
+            line-height: 1.3;
 
-            font-weight:
-                750;
+            font-weight: 700;
 
-            line-height:
-                1.35;
+            letter-spacing: -0.3px;
 
-            color:
-                white;
+            color: #f6f7fb;
 
-            margin-bottom:
-                8px;
+            word-break: break-word;
         }
 
+        .paper-meta {
+            display: flex;
 
-        .meta {
+            align-items: center;
 
-            color:
-                rgba(255,255,255,0.40);
+            gap: 8px;
 
-            font-size:
-                13px;
+            margin-top: 8px;
 
-            line-height:
-                1.6;
+            color: #737b8c;
 
-            margin-bottom:
-                18px;
+            font-size: 11px;
+        }
+
+        .meta-dot {
+            width: 3px;
+            height: 3px;
+
+            border-radius: 50%;
+
+            background: #555d6c;
         }
 
 
         /* =====================================================
            DOWNLOAD
-           ===================================================== */
+        ===================================================== */
 
         .download {
+            display: flex;
 
-            display:
-                flex;
+            align-items: center;
+            justify-content: center;
 
-            align-items:
-                center;
+            gap: 8px;
 
-            justify-content:
-                center;
+            width: 100%;
 
-            gap:
-                8px;
+            height: 46px;
 
-            height:
-                45px;
+            margin-top: auto;
 
-            width:
-                100%;
+            padding: 0 15px;
 
-            border-radius:
-                12px;
+            border-radius: 13px;
 
-            text-decoration:
-                none;
-
-            color:
-                white;
-
-            font-size:
-                13px;
-
-            font-weight:
-                700;
+            border:
+                1px solid
+                rgba(129,140,248,0.25);
 
             background:
                 linear-gradient(
                     135deg,
-                    rgba(83,109,254,0.90),
-                    rgba(139,92,246,0.90)
+                    rgba(79,70,229,0.95),
+                    rgba(124,58,237,0.95)
                 );
 
-            border:
-                1px solid
-                rgba(255,255,255,0.13);
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            letter-spacing: 0.1px;
 
             box-shadow:
                 0 10px 25px
-                rgba(79,70,229,0.20);
+                rgba(79,70,229,0.18);
 
             transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
+                transform .2s,
+                filter .2s,
+                box-shadow .2s;
         }
-
 
         .download:hover {
+            filter: brightness(1.12);
 
             transform:
-                translateY(-2px);
+                translateY(-1px);
 
             box-shadow:
-                0 14px 35px
-                rgba(79,70,229,0.32);
+                0 14px 32px
+                rgba(79,70,229,0.28);
+        }
+
+        .download:active {
+            transform:
+                translateY(1px);
         }
 
 
         /* =====================================================
-           EMPTY
-           ===================================================== */
+           EMPTY STATE
+        ===================================================== */
 
         .empty {
+            display: none;
 
-            padding:
-                60px 20px;
+            padding: 70px 20px;
 
-            text-align:
-                center;
+            text-align: center;
 
-            color:
-                rgba(255,255,255,0.40);
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
 
-            border-radius:
-                20px;
+            border-radius: 22px;
+
+            background:
+                rgba(255,255,255,0.025);
         }
 
+        .empty-icon {
+            font-size: 35px;
 
-        /* =====================================================
-           THUMBNAIL ERROR
-           ===================================================== */
-
-        .thumbnail-error {
-
-            width:
-                100%;
-
-            height:
-                100%;
-
-            display:
-                flex;
-
-            flex-direction:
-                column;
-
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            gap:
-                10px;
-
-            color:
-                rgba(255,255,255,0.35);
+            margin-bottom: 15px;
         }
 
+        .empty-title {
+            font-size: 18px;
 
-        .thumbnail-error-icon {
+            font-weight: 700;
+        }
 
-            font-size:
-                40px;
+        .empty-text {
+            margin-top: 7px;
 
-            opacity:
-                0.5;
+            color: #747c8b;
+
+            font-size: 13px;
         }
 
 
         /* =====================================================
            FOOTER
-           ===================================================== */
+        ===================================================== */
 
-        .footer {
-
-            width:
-                min(
-                    calc(100% - 30px),
-                    1200px
-                );
-
-            margin:
-                0 auto;
-
+        footer {
             padding:
-                40px 0 70px;
-
-            color:
-                rgba(255,255,255,0.25);
-
-            font-size:
-                12px;
-
-            text-align:
-                center;
+                30px 0
+                50px;
 
             border-top:
                 1px solid
-                rgba(255,255,255,0.07);
+                rgba(255,255,255,0.06);
+
+            color: #626a79;
+
+            font-size: 11px;
+        }
+
+        .footer-inner {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+        .footer-status {
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+        }
+
+        .footer-dot {
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
         }
 
 
         /* =====================================================
-           MOBILE
-           ===================================================== */
+           LOADING OVERLAY
+        ===================================================== */
 
-        @media (max-width: 800px) {
+        .loading {
+            position: fixed;
 
-            .nav-links {
+            inset: 0;
 
-                display:
-                    none;
-            }
+            z-index: 999;
 
+            display: flex;
 
-            .nav {
+            align-items: center;
+            justify-content: center;
 
-                height:
-                    58px;
-            }
+            background:
+                rgba(5,6,10,0.88);
 
+            backdrop-filter:
+                blur(18px);
 
-            .hero {
+            -webkit-backdrop-filter:
+                blur(18px);
 
-                min-height:
-                    78vh;
+            opacity: 0;
 
-                padding-top:
-                    130px;
-            }
+            pointer-events: none;
 
+            transition: opacity .2s;
+        }
 
-            .hero h1 {
+        .loading.active {
+            opacity: 1;
 
-                letter-spacing:
-                    -3px;
-            }
+            pointer-events: all;
+        }
 
+        .loading-box {
+            display: flex;
 
-            .hero p {
+            flex-direction: column;
 
-                font-size:
-                    16px;
-            }
+            align-items: center;
 
+            gap: 15px;
+        }
 
-            .stats {
+        .spinner {
+            width: 36px;
+            height: 36px;
 
-                grid-template-columns:
-                    1fr;
-            }
+            border:
+                3px solid
+                rgba(255,255,255,0.12);
 
+            border-top-color:
+                #8b5cf6;
 
-            .section-heading {
+            border-radius: 50%;
 
-                align-items:
-                    flex-start;
+            animation:
+                spin .75s linear infinite;
+        }
 
-                flex-direction:
-                    column;
-            }
+        .loading-text {
+            color: #a2a9b8;
 
+            font-size: 12px;
+        }
 
-            .search-panel {
+        @keyframes spin {
 
-                top:
-                    85px;
+            to {
+                transform:
+                    rotate(360deg);
             }
 
         }
 
 
-        @media (max-width: 600px) {
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
 
-            .library {
+        @media (max-width: 1150px) {
 
+            .papers-grid {
+                grid-template-columns:
+                    repeat(
+                        3,
+                        minmax(0, 1fr)
+                    );
+            }
+
+        }
+
+
+        @media (max-width: 850px) {
+
+            .hero {
+                padding-top: 65px;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+
+                gap: 30px;
+            }
+
+            .papers-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+            }
+
+            .hero h1 {
+                letter-spacing: -3px;
+            }
+
+        }
+
+
+        @media (max-width: 560px) {
+
+            .container {
                 width:
                     calc(100% - 24px);
             }
 
+            .navbar {
+                top: 8px;
 
-            .grid {
+                margin-top: 8px;
 
+                border-radius: 15px;
+            }
+
+            .status {
+                display: none;
+            }
+
+            .hero {
+                padding:
+                    55px 0
+                    40px;
+            }
+
+            .hero h1 {
+                font-size: 48px;
+
+                letter-spacing: -3px;
+            }
+
+            .hero-description {
+                font-size: 14px;
+            }
+
+            .stats {
                 grid-template-columns:
-                    1fr;
+                    repeat(2, 1fr);
             }
 
-
-            .thumbnail {
-
-                height:
-                    430px;
+            .stat {
+                padding: 16px;
             }
 
+            .stat-number {
+                font-size: 23px;
+            }
 
-            .hero-orb {
+            .papers-grid {
+                grid-template-columns: 1fr;
 
-                width:
-                    260px;
+                gap: 12px;
+            }
 
-                height:
-                    260px;
+            .paper-card {
+                min-height: 225px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+
+                flex-direction: column;
+
+                gap: 7px;
+            }
+
+            .footer-inner {
+                align-items: flex-start;
+
+                flex-direction: column;
             }
 
         }
 
     </style>
-
 </head>
 
 
 <body>
 
-
-<div class="noise"></div>
-
-
-<!-- =========================================================
-     FLOATING NAV
-     ========================================================= -->
-
-<nav class="nav">
-
-    <a
-        href="/"
-        class="brand"
-    >
-
-        <span class="brand-icon">
-            📰
-        </span>
-
-        <span>
-            Newspaper Library
-        </span>
-
-    </a>
-
-
-    <div class="nav-links">
-
-        <a
-            href="#indian"
-            class="nav-link"
-        >
-            🇮🇳 India
-        </a>
-
-        <a
-            href="#international"
-            class="nav-link"
-        >
-            🌎 International
-        </a>
-
-        <a
-            href="#library"
-            class="nav-cta"
-        >
-            Browse Papers
-        </a>
-
-    </div>
-
-</nav>
-
-
-<!-- =========================================================
-     HERO
-     ========================================================= -->
-
-<section class="hero">
-
-
-    <div class="hero-orb"></div>
-
-
-    <div class="hero-content">
-
-
-        <div class="eyebrow">
-
-            <span class="eyebrow-dot"></span>
-
-            Today's newspapers
-
-        </div>
-
-
-        <h1>
-            The world's<br>
-            front pages.
-        </h1>
-
-
-        <p>
-
-            Browse Indian and international newspapers
-            in one beautiful library. View the first page,
-            then download the original PDF directly.
-
-        </p>
-
-
-        <div class="hero-actions">
-
-            <a
-                href="#indian"
-                class="hero-button primary"
-            >
-                🇮🇳 Indian Newspapers
-            </a>
-
-
-            <a
-                href="#international"
-                class="hero-button"
-            >
-                🌎 International
-            </a>
-
-        </div>
-
-
-    </div>
-
-
-</section>
-
-
-<!-- =========================================================
-     LIBRARY
-     ========================================================= -->
-
-<main
-    class="library"
-    id="library"
->
+    <div class="ambient one"></div>
+    <div class="ambient two"></div>
+    <div class="ambient three"></div>
 
 
     <!-- =====================================================
-         SEARCH
+         NAVIGATION
+         ===================================================== -->
+
+    <div class="container">
+
+        <nav class="navbar">
+
+            <div class="nav-inner">
+
+                <a
+                    href="/"
+                    class="logo"
+                >
+
+                    <div class="logo-mark">
+                        📰
+                    </div>
+
+                    <div>
+
+                        <div class="logo-text">
+                            Newspaper Library
+                        </div>
+
+                        <div class="logo-subtitle">
+                            Telegram-powered archive
+                        </div>
+
+                    </div>
+
+                </a>
+
+
+                <div class="status">
+
+                    <span class="status-dot"></span>
+
+                    Live library
+
+                </div>
+
+            </div>
+
+        </nav>
+
+
+        <!-- =================================================
+             HERO
+             ================================================= -->
+
+        <section class="hero">
+
+            <div class="hero-grid">
+
+                <div>
+
+                    <div class="eyebrow">
+
+                        <span class="eyebrow-dot"></span>
+
+                        Daily newspaper archive
+
+                    </div>
+
+
+                    <h1>
+
+                        Your papers.
+                        <span class="gradient-text">
+                            One place.
+                        </span>
+
+                    </h1>
+
+
+                    <p class="hero-description">
+
+                        Browse today's Indian and international
+                        newspapers. Files are delivered directly
+                        from Telegram when you download them.
+
+                    </p>
+
+                </div>
+
+
+                <div class="stats">
+
+                    <div class="stat">
+
+                        <div
+                            class="stat-number"
+                            id="total-count"
+                        >
+                            {{ total }}
+                        </div>
+
+                        <div class="stat-label">
+                            Newspapers
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <div
+                            class="stat-number"
+                        >
+                            2
+                        </div>
+
+                        <div class="stat-label">
+                            Collections
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SEARCH
+             ================================================= -->
+
+        <section class="search-area">
+
+            <div class="search-box">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+                <input
+                    id="search"
+                    class="search-input"
+                    type="search"
+                    placeholder="Search newspapers..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INDIAN NEWSPAPERS
+             ================================================= -->
+
+        <section
+            class="section"
+            id="indian-section"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <div class="section-title">
+                        Indian Newspapers
+                    </div>
+
+                    <div class="section-description">
+                        Newspapers from India
+                    </div>
+
+                </div>
+
+
+                <div class="section-count">
+
+                    <span id="indian-count">
+                        {{ indian|length }}
+                    </span>
+
+                    papers
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="papers-grid"
+                id="indian-grid"
+            >
+
+                {% for paper in indian %}
+
+                    <article
+                        class="paper-card"
+                        data-paper-card
+                        data-name="{{ paper.name|lower }}"
+                        data-filename="{{ paper.filename|lower }}"
+                        data-category="{{ paper.category|lower }}"
+                        data-date="{{ paper.date|lower }}"
+                    >
+
+                        <div class="paper-icon">
+                            📰
+                        </div>
+
+
+                        <div class="paper-name">
+
+                            {{ paper.name }}
+
+                        </div>
+
+
+                        <div class="paper-meta">
+
+                            <span>
+                                {{ paper.date }}
+                            </span>
+
+                            <span class="meta-dot"></span>
+
+                            <span>
+                                Indian
+                            </span>
+
+                        </div>
+
+
+                        <a
+                            class="download"
+                            href="/download/{{ paper.id }}"
+                            download
+                        >
+
+                            <span>
+                                ↓
+                            </span>
+
+                            Download PDF
+
+                        </a>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div
+                class="empty"
+                id="indian-empty"
+            >
+
+                <div class="empty-icon">
+                    🔎
+                </div>
+
+                <div class="empty-title">
+                    No newspapers found
+                </div>
+
+                <div class="empty-text">
+                    Try a different search.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INTERNATIONAL NEWSPAPERS
+             ================================================= -->
+
+        <section
+            class="section"
+            id="international-section"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <div class="section-title">
+                        International Newspapers
+                    </div>
+
+                    <div class="section-description">
+                        Newspapers from around the world
+                    </div>
+
+                </div>
+
+
+                <div class="section-count">
+
+                    <span id="international-count">
+                        {{ international|length }}
+                    </span>
+
+                    papers
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="papers-grid"
+                id="international-grid"
+            >
+
+                {% for paper in international %}
+
+                    <article
+                        class="paper-card"
+                        data-paper-card
+                        data-name="{{ paper.name|lower }}"
+                        data-filename="{{ paper.filename|lower }}"
+                        data-category="{{ paper.category|lower }}"
+                        data-date="{{ paper.date|lower }}"
+                    >
+
+                        <div class="paper-icon">
+                            🌎
+                        </div>
+
+
+                        <div class="paper-name">
+
+                            {{ paper.name }}
+
+                        </div>
+
+
+                        <div class="paper-meta">
+
+                            <span>
+                                {{ paper.date }}
+                            </span>
+
+                            <span class="meta-dot"></span>
+
+                            <span>
+                                International
+                            </span>
+
+                        </div>
+
+
+                        <a
+                            class="download"
+                            href="/download/{{ paper.id }}"
+                            download
+                        >
+
+                            <span>
+                                ↓
+                            </span>
+
+                            Download PDF
+
+                        </a>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div
+                class="empty"
+                id="international-empty"
+            >
+
+                <div class="empty-icon">
+                    🔎
+                </div>
+
+                <div class="empty-title">
+                    No newspapers found
+                </div>
+
+                <div class="empty-text">
+                    Try a different search.
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer>
+
+        <div class="container">
+
+            <div class="footer-inner">
+
+                <div>
+                    Newspaper Library
+                </div>
+
+
+                <div class="footer-status">
+
+                    <span class="footer-dot"></span>
+
+                    Files delivered from Telegram
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         LOADING
          ===================================================== -->
 
     <div
-        class="search-panel glass"
+        class="loading"
+        id="loading"
     >
 
-        <div class="search-wrap">
+        <div class="loading-box">
 
-            <span class="search-icon">
-                ⌕
-            </span>
+            <div class="spinner"></div>
 
-            <input
-                id="search"
-                class="search"
-                type="search"
-                placeholder="Search newspapers..."
-                autocomplete="off"
-            >
+            <div class="loading-text">
+                Connecting to Telegram...
+            </div>
 
         </div>
 
@@ -1554,394 +1580,226 @@
 
 
     <!-- =====================================================
-         STATS
+         JAVASCRIPT
          ===================================================== -->
 
-    <div class="stats">
-
-
-        <div class="stat glass">
-
-            <div class="stat-number">
-                {{ total }}
-            </div>
-
-            <div class="stat-label">
-                Newspapers available
-            </div>
-
-        </div>
-
-
-        <div class="stat glass">
-
-            <div class="stat-number">
-                {{ indian|length }}
-            </div>
-
-            <div class="stat-label">
-                Indian editions
-            </div>
-
-        </div>
-
-
-        <div class="stat glass">
-
-            <div class="stat-number">
-                {{ international|length }}
-            </div>
-
-            <div class="stat-label">
-                International editions
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-    <!-- =====================================================
-         INDIAN
-         ===================================================== -->
-
-    <section
-        class="section"
-        id="indian"
-    >
-
-
-        <div class="section-heading">
-
-            <div>
-
-                <h2 class="section-title">
-                    India
-                </h2>
-
-                <p class="section-description">
-                    Today's Indian newspapers
-                </p>
-
-            </div>
-
-
-            <div class="section-count">
-
-                {{ indian|length }}
-                editions
-
-            </div>
-
-        </div>
-
-
-        {% if indian %}
-
-
-        <div
-            id="indian-grid"
-            class="grid"
-        >
-
-
-            {% for paper in indian %}
-
-
-            <article
-                class="card"
-                data-search="{{ paper.name|lower }} {{ paper.filename|lower }} {{ paper.date|lower }}"
-            >
-
-
-                <!-- =========================================
-                     FIRST PAGE
-                     ========================================= -->
-
-                <div class="thumbnail">
-
-                    <img
-                        src="{{ paper.thumbnail_url }}"
-                        alt="{{ paper.name }}"
-                        loading="lazy"
-                        onerror="thumbnailError(this)"
-                    >
-
-                </div>
-
-
-                <!-- =========================================
-                     DETAILS
-                     ========================================= -->
-
-                <div class="card-body">
-
-
-                    <div class="paper-name">
-
-                        {{ paper.name }}
-
-                    </div>
-
-
-                    <div class="meta">
-
-                        {{ paper.date }}
-
-                        <br>
-
-                        Indian edition
-
-                    </div>
-
-
-                    <a
-                        href="{{ paper.download_url }}"
-                        class="download"
-                    >
-
-                        ↓
-                        Download PDF
-
-                    </a>
-
-
-                </div>
-
-
-            </article>
-
-
-            {% endfor %}
-
-
-        </div>
-
-
-        {% else %}
-
-
-        <div class="empty glass">
-
-            No Indian newspapers available.
-
-        </div>
-
-
-        {% endif %}
-
-
-    </section>
-
-
-    <!-- =====================================================
-         INTERNATIONAL
-         ===================================================== -->
-
-    <section
-        class="section"
-        id="international"
-    >
-
-
-        <div class="section-heading">
-
-            <div>
-
-                <h2 class="section-title">
-                    International
-                </h2>
-
-                <p class="section-description">
-                    Today's newspapers from around the world
-                </p>
-
-            </div>
-
-
-            <div class="section-count">
-
-                {{ international|length }}
-                editions
-
-            </div>
-
-        </div>
-
-
-        {% if international %}
-
-
-        <div
-            id="international-grid"
-            class="grid"
-        >
-
-
-            {% for paper in international %}
-
-
-            <article
-                class="card"
-                data-search="{{ paper.name|lower }} {{ paper.filename|lower }} {{ paper.date|lower }}"
-            >
-
-
-                <!-- =========================================
-                     FIRST PAGE
-                     ========================================= -->
-
-                <div class="thumbnail">
-
-                    <img
-                        src="{{ paper.thumbnail_url }}"
-                        alt="{{ paper.name }}"
-                        loading="lazy"
-                        onerror="thumbnailError(this)"
-                    >
-
-                </div>
-
-
-                <!-- =========================================
-                     DETAILS
-                     ========================================= -->
-
-                <div class="card-body">
-
-
-                    <div class="paper-name">
-
-                        {{ paper.name }}
-
-                    </div>
-
-
-                    <div class="meta">
-
-                        {{ paper.date }}
-
-                        <br>
-
-                        International edition
-
-                    </div>
-
-
-                    <a
-                        href="{{ paper.download_url }}"
-                        class="download"
-                    >
-
-                        ↓
-                        Download PDF
-
-                    </a>
-
-
-                </div>
-
-
-            </article>
-
-
-            {% endfor %}
-
-
-        </div>
-
-
-        {% else %}
-
-
-        <div class="empty glass">
-
-            No international newspapers available.
-
-        </div>
-
-
-        {% endif %}
-
-
-    </section>
-
-
-</main>
-
-
-<!-- =========================================================
-     FOOTER
-     ========================================================= -->
-
-<footer class="footer">
-
-    Newspaper Library
-
-    <br>
-
-    PDFs are delivered directly from Telegram.
-
-</footer>
-
-
-<!-- =========================================================
-     JAVASCRIPT
-     ========================================================= -->
-
-<script>
-
-
-/* ============================================================
-   SEARCH
-   ============================================================ */
-
-const search =
-    document.getElementById(
-        "search"
-    );
-
-
-search.addEventListener(
-    "input",
-    function () {
-
-
-        const query =
-            this.value
-                .trim()
-                .toLowerCase();
-
-
-        const cards =
-            document.querySelectorAll(
-                ".card"
+    <script>
+
+        /* =================================================
+           SEARCH
+           ================================================= */
+
+        const searchInput =
+            document.getElementById(
+                "search"
             );
 
 
-        cards.forEach(
-            function (card) {
+        const cards =
+            Array.from(
+                document.querySelectorAll(
+                    "[data-paper-card]"
+                )
+            );
 
 
-                const text =
-                    card.dataset.search
-                    || "";
+        const indianCount =
+            document.getElementById(
+                "indian-count"
+            );
 
+
+        const internationalCount =
+            document.getElementById(
+                "international-count"
+            );
+
+
+        const indianEmpty =
+            document.getElementById(
+                "indian-empty"
+            );
+
+
+        const internationalEmpty =
+            document.getElementById(
+                "international-empty"
+            );
+
+
+        function filterPapers() {
+
+            const query =
+                searchInput.value
+                    .trim()
+                    .toLowerCase();
+
+
+            let indianVisible = 0;
+
+            let internationalVisible = 0;
+
+
+            cards.forEach(
+                card => {
+
+                    const searchable =
+                        [
+                            card.dataset.name,
+                            card.dataset.filename,
+                            card.dataset.category,
+                            card.dataset.date
+                        ]
+                        .join(" ");
+
+
+                    const matches =
+                        !query ||
+                        searchable.includes(
+                            query
+                        );
+
+
+                    card.style.display =
+                        matches
+                            ? ""
+                            : "none";
+
+
+                    if (matches) {
+
+                        if (
+                            card.dataset.category
+                                === "indian"
+                        ) {
+
+                            indianVisible++;
+
+                        } else {
+
+                            internationalVisible++;
+
+                        }
+
+                    }
+
+                }
+            );
+
+
+            indianCount.textContent =
+                indianVisible;
+
+
+            internationalCount.textContent =
+                internationalVisible;
+
+
+            indianEmpty.style.display =
+                indianVisible === 0
+                    ? "block"
+                    : "none";
+
+
+            internationalEmpty.style.display =
+                internationalVisible === 0
+                    ? "block"
+                    : "none";
+
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            filterPapers
+        );
+
+
+        /* =================================================
+           DOWNLOAD FEEDBACK
+           ================================================= */
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+
+        const downloadLinks =
+            document.querySelectorAll(
+                ".download"
+            );
+
+
+        downloadLinks.forEach(
+            link => {
+
+                link.addEventListener(
+                    "click",
+                    () => {
+
+                        /*
+                         * Do NOT block navigation.
+                         *
+                         * The PDF is streamed directly
+                         * by FastAPI from Telegram.
+                         */
+
+                        link.style.opacity =
+                            "0.7";
+
+                        link.style.pointerEvents =
+                            "none";
+
+                        setTimeout(
+                            () => {
+
+                                link.style.opacity =
+                                    "";
+
+                                link.style.pointerEvents =
+                                    "";
+
+                            },
+                            2500
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           KEYBOARD SHORTCUT
+           ================================================= */
+
+        document.addEventListener(
+            "keydown",
+            event => {
 
                 if (
-                    !query
-                    ||
-                    text.includes(query)
+                    event.key === "/" &&
+                    document.activeElement !==
+                        searchInput
                 ) {
 
-                    card.style.display =
-                        "";
+                    event.preventDefault();
 
-                } else {
+                    searchInput.focus();
 
-                    card.style.display =
-                        "none";
+                }
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    searchInput.value = "";
+
+                    filterPapers();
+
+                    searchInput.blur();
 
                 }
 
@@ -1949,110 +1807,13 @@ search.addEventListener(
         );
 
 
-    }
-);
+        /* =================================================
+           INITIAL STATE
+           ================================================= */
 
+        filterPapers();
 
-/* ============================================================
-   THUMBNAIL ERROR
-   ============================================================ */
-
-function thumbnailError(
-    image
-) {
-
-
-    const container =
-        image.parentElement;
-
-
-    image.remove();
-
-
-    const message =
-        document.createElement(
-            "div"
-        );
-
-
-    message.className =
-        "thumbnail-error";
-
-
-    const icon =
-        document.createElement(
-            "div"
-        );
-
-
-    icon.className =
-        "thumbnail-error-icon";
-
-
-    icon.textContent =
-        "📰";
-
-
-    const text =
-        document.createElement(
-            "div"
-        );
-
-
-    text.textContent =
-        "Thumbnail unavailable";
-
-
-    message.appendChild(
-        icon
-    );
-
-
-    message.appendChild(
-        text
-    );
-
-
-    container.appendChild(
-        message
-    );
-
-}
-
-
-/* ============================================================
-   SUBTLE PARALLAX
-   ============================================================ */
-
-const orb =
-    document.querySelector(
-        ".hero-orb"
-    );
-
-
-window.addEventListener(
-    "scroll",
-    function () {
-
-
-        if (!orb) {
-            return;
-        }
-
-
-        const scroll =
-            window.scrollY;
-
-
-        orb.style.transform =
-            `translateY(${scroll * 0.12}px)`;
-    }
-);
-
-
-</script>
-
+    </script>
 
 </body>
-
 </html>

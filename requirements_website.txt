@@ -1,6 +1,5 @@
 telethon
 python-dotenv
-pymupdf
 fastapi
 uvicorn[standard]
 jinja2
