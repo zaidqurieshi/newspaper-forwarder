@@ -7,7 +7,7 @@ import shutil
 from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
-from telethon import TelegramClient
+from telethon import TelegramClient, types
 from telethon.sessions import StringSession
 from pypdf import PdfReader, PdfWriter
 
@@ -15,8 +15,6 @@ from pypdf import PdfReader, PdfWriter
 # ============================================================
 # ENVIRONMENT
 # ============================================================
-
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -42,11 +40,16 @@ client = TelegramClient(
 
 
 # ============================================================
-# CHANNELS
+# TELEGRAM CHANNELS
 # ============================================================
 
+# Indian newspaper source
 INDIAN_CHANNEL = -1003645659794
+
+# International newspaper source
 INTERNATIONAL_CHANNEL = -1001580607147
+
+# Destination ePapers channel
 DESTINATION_CHANNEL = -1004486510815
 
 
@@ -54,9 +57,7 @@ DESTINATION_CHANNEL = -1004486510815
 # ONLY PROCESS RECENT MESSAGES
 # ============================================================
 
-MAX_MESSAGE_AGE = timedelta(
-    hours=48
-)
+MAX_MESSAGE_AGE = timedelta(hours=48)
 
 
 # ============================================================
@@ -68,9 +69,7 @@ FORWARDED_FILE = "forwarded_messages.json"
 
 def load_forwarded_messages():
 
-    if not os.path.exists(
-        FORWARDED_FILE
-    ):
+    if not os.path.exists(FORWARDED_FILE):
         return {
             "indian": [],
             "international": []
@@ -86,25 +85,14 @@ def load_forwarded_messages():
 
             data = json.load(file)
 
-        if not isinstance(
-            data,
-            dict
-        ):
-
+        if not isinstance(data, dict):
             return {
                 "indian": [],
                 "international": []
             }
 
-        data.setdefault(
-            "indian",
-            []
-        )
-
-        data.setdefault(
-            "international",
-            []
-        )
+        data.setdefault("indian", [])
+        data.setdefault("international", [])
 
         return data
 
@@ -116,13 +104,9 @@ def load_forwarded_messages():
         }
 
 
-def save_forwarded_messages(
-    data
-):
+def save_forwarded_messages(data):
 
-    temporary_file = (
-        FORWARDED_FILE + ".tmp"
-    )
+    temporary_file = FORWARDED_FILE + ".tmp"
 
     with open(
         temporary_file,
@@ -146,21 +130,16 @@ def save_forwarded_messages(
 # RECENT MESSAGE CHECK
 # ============================================================
 
-def is_recent_message(
-    message
-):
+def is_recent_message(message):
 
     if message.date is None:
         return False
 
-    now = datetime.now(
-        timezone.utc
-    )
+    now = datetime.now(timezone.utc)
 
     message_date = message.date
 
     if message_date.tzinfo is None:
-
         message_date = message_date.replace(
             tzinfo=timezone.utc
         )
@@ -171,9 +150,44 @@ def is_recent_message(
 
 
 # ============================================================
-# INDIAN NEWSPAPERS
-#
-# Only the desired editions are matched.
+# DATE FOR TELEGRAM FILENAME
+# ============================================================
+
+def get_publication_date(message):
+
+    if message.date is None:
+        return datetime.now(
+            timezone.utc
+        )
+
+    date = message.date
+
+    if date.tzinfo is None:
+        date = date.replace(
+            tzinfo=timezone.utc
+        )
+
+    return date
+
+
+def make_filename(
+    paper,
+    message
+):
+
+    date_string = get_publication_date(
+        message
+    ).strftime(
+        "%d-%m-%Y"
+    )
+
+    return (
+        f"{paper} - {date_string}.pdf"
+    )
+
+
+# ============================================================
+# INDIAN NEWSPAPER MATCHING
 # ============================================================
 
 def identify_indian_paper(
@@ -193,9 +207,10 @@ def identify_indian_paper(
         f"{filename_lower} {caption_lower}"
     )
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # GREATER KASHMIR
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"greater[\s_-]+kashmir",
@@ -204,17 +219,10 @@ def identify_indian_paper(
 
         return "Greater Kashmir"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # TIMES OF INDIA — DELHI
-    #
-    # Examples:
-    #
-    # TOI ● Delhi Times ● 16...
-    # TOI Delhi...
-    # Times of India Delhi...
-    #
-    # We deliberately reject other editions.
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\btoi\b"
@@ -228,8 +236,6 @@ def identify_indian_paper(
             r"|delhi",
             text
         ):
-
-            # Reject clearly non-Delhi editions.
 
             excluded = [
                 "kochi",
@@ -250,26 +256,12 @@ def identify_indian_paper(
                 for edition in excluded
             ):
 
-                return "Times of India — Delhi"
+                return "Times of India"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # HINDUSTAN TIMES — DELHI
-    #
-    # Desired:
-    #
-    # HT ● Delhi ● ...
-    #
-    # Reject:
-    #
-    # Delhi City
-    # West Delhi City
-    # South Delhi City
-    # Noida
-    # Gurgaon
-    # Mumbai
-    # Thane
-    # etc.
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\bht\b"
@@ -277,8 +269,6 @@ def identify_indian_paper(
         r"|the[\s_-]+hindustan[\s_-]+times",
         text
     ):
-
-        # Exact Delhi edition.
 
         if re.search(
             r"ht[\s●_-]+delhi[\s●_-]"
@@ -308,14 +298,12 @@ def identify_indian_paper(
                 for edition in excluded
             ):
 
-                return "Hindustan Times — Delhi"
+                return "Hindustan Times"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # ECONOMIC TIMES — DELHI
-    #
-    # Flexible because we have not yet seen today's exact
-    # filename.
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\beconomic[\s_-]+times\b"
@@ -342,13 +330,14 @@ def identify_indian_paper(
                 for edition in excluded
             ):
 
-                return "Economic Times — Delhi"
+                return "Economic Times"
+
 
     return None
 
 
 # ============================================================
-# INTERNATIONAL NEWSPAPERS
+# INTERNATIONAL NEWSPAPER MATCHING
 # ============================================================
 
 def identify_international_paper(
@@ -360,9 +349,10 @@ def identify_international_paper(
         f"{filename} {caption}"
     ).lower()
 
-    # --------------------------------------------------------
-    # GUARDIAN
-    # --------------------------------------------------------
+
+    # ========================================================
+    # THE GUARDIAN
+    # ========================================================
 
     if re.search(
         r"the[-\s]+guardian",
@@ -376,9 +366,10 @@ def identify_international_paper(
 
             return "The Guardian"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # NEW YORK TIMES
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\bnyt\b"
@@ -388,9 +379,10 @@ def identify_international_paper(
 
         return "The New York Times"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # WASHINGTON POST
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"washington[-\s]+post",
@@ -399,9 +391,10 @@ def identify_international_paper(
 
         return "The Washington Post"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # THE SUN UK
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"the[-\s]+sun",
@@ -415,9 +408,10 @@ def identify_international_paper(
 
             return "The Sun UK"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # FINANCIAL TIMES — UK
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\bft[\s_-]+uk\b"
@@ -425,11 +419,12 @@ def identify_international_paper(
         text
     ):
 
-        return "Financial Times — UK"
+        return "Financial Times UK"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # FINANCIAL TIMES — US
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\bft[\s_-]+us\b"
@@ -437,11 +432,12 @@ def identify_international_paper(
         text
     ):
 
-        return "Financial Times — US"
+        return "Financial Times US"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # FINANCIAL TIMES — EU
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"\bft[\s_-]+eu\b"
@@ -450,11 +446,12 @@ def identify_international_paper(
         text
     ):
 
-        return "Financial Times — EU"
+        return "Financial Times EU"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # WALL STREET JOURNAL
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"wall[-\s]+street[-\s]+journal"
@@ -464,9 +461,10 @@ def identify_international_paper(
 
         return "The Wall Street Journal"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # DAILY MIRROR
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"daily[-\s]+mirror",
@@ -475,9 +473,10 @@ def identify_international_paper(
 
         return "Daily Mirror"
 
-    # --------------------------------------------------------
+
+    # ========================================================
     # DAILY TELEGRAPH
-    # --------------------------------------------------------
+    # ========================================================
 
     if re.search(
         r"daily[-\s]+telegraph",
@@ -486,6 +485,7 @@ def identify_international_paper(
 
         return "Daily Telegraph"
 
+
     return None
 
 
@@ -493,9 +493,7 @@ def identify_international_paper(
 # NEWS TG8 PROMOTIONAL PAGE DETECTION
 # ============================================================
 
-def is_promotional_page(
-    text
-):
+def is_promotional_page(text):
 
     if not text:
         return False
@@ -562,6 +560,7 @@ def clean_indian_pdf(
 
     removed_pages = 0
 
+
     for page_number, page in enumerate(
         reader.pages,
         start=1
@@ -578,9 +577,8 @@ def clean_indian_pdf(
 
             text = ""
 
-        if is_promotional_page(
-            text
-        ):
+
+        if is_promotional_page(text):
 
             print(
                 f"Promotional page detected "
@@ -592,11 +590,13 @@ def clean_indian_pdf(
 
             continue
 
-        writer.add_page(
-            page
-        )
 
-    # Never create an empty PDF.
+        writer.add_page(page)
+
+
+    # ========================================================
+    # SAFETY CHECK
+    # ========================================================
 
     if len(writer.pages) == 0:
 
@@ -609,12 +609,10 @@ def clean_indian_pdf(
         writer = PdfWriter()
 
         for page in reader.pages:
-
-            writer.add_page(
-                page
-            )
+            writer.add_page(page)
 
         removed_pages = 0
+
 
     with open(
         output_path,
@@ -625,6 +623,7 @@ def clean_indian_pdf(
             output_file
         )
 
+
     return removed_pages
 
 
@@ -633,54 +632,68 @@ def clean_indian_pdf(
 # ============================================================
 
 async def prepare_indian_pdf(
-    message
+    message,
+    paper
 ):
 
-    temporary_directory = (
-        tempfile.mkdtemp(
-            prefix="newspaper_"
-        )
+    temporary_directory = tempfile.mkdtemp(
+        prefix="newspaper_"
     )
+
 
     original_filename = (
         message.file.name
         or f"newspaper_{message.id}.pdf"
     )
 
+
     original_path = os.path.join(
         temporary_directory,
         original_filename
     )
+
 
     print(
         "Downloading Indian PDF for cleaning...",
         flush=True
     )
 
+
     await client.download_media(
         message,
         file=original_path
     )
+
 
     print(
         "Download complete.",
         flush=True
     )
 
-    cleaned_path = os.path.join(
-        temporary_directory,
-        "cleaned_" + original_filename
-    )
 
     print(
         "Checking for NewsTG8 promotional page...",
         flush=True
     )
 
+
+    final_filename = make_filename(
+        paper,
+        message
+    )
+
+
+    cleaned_path = os.path.join(
+        temporary_directory,
+        final_filename
+    )
+
+
     removed_pages = clean_indian_pdf(
         original_path,
         cleaned_path
     )
+
 
     if removed_pages == 0:
 
@@ -689,20 +702,94 @@ async def prepare_indian_pdf(
             flush=True
         )
 
-        return (
-            original_path,
-            temporary_directory
+        if os.path.abspath(
+            original_path
+        ) != os.path.abspath(
+            cleaned_path
+        ):
+
+            shutil.copy2(
+                original_path,
+                cleaned_path
+            )
+
+    else:
+
+        print(
+            f"Removed {removed_pages} "
+            f"promotional page(s).",
+            flush=True
         )
 
+
     print(
-        f"Removed {removed_pages} "
-        f"promotional page(s).",
+        f"Final filename: {final_filename}",
         flush=True
     )
+
 
     return (
         cleaned_path,
         temporary_directory
+    )
+
+
+# ============================================================
+# SEND INTERNATIONAL MEDIA WITHOUT DOWNLOADING
+#
+# Telegram media is reused directly.
+# Only the filename attribute is changed.
+# ============================================================
+
+async def send_existing_media(
+    message,
+    paper
+):
+
+    final_filename = make_filename(
+        paper,
+        message
+    )
+
+
+    print(
+        "Sending existing Telegram media directly...",
+        flush=True
+    )
+
+
+    print(
+        f"Final filename: {final_filename}",
+        flush=True
+    )
+
+
+    # Telegram document filename attribute.
+    #
+    # This changes the filename shown in the destination
+    # channel while reusing the existing Telegram media.
+
+    filename_attribute = (
+        types.DocumentAttributeFilename(
+            file_name=final_filename
+        )
+    )
+
+
+    await client.send_file(
+        DESTINATION_CHANNEL,
+        message.media,
+        caption=None,
+        force_document=True,
+        attributes=[
+            filename_attribute
+        ]
+    )
+
+
+    print(
+        "✓ Sent without downloading to GitHub",
+        flush=True
     )
 
 
@@ -730,32 +817,6 @@ def cleanup_directory(
 
 
 # ============================================================
-# SEND EXISTING TELEGRAM MEDIA
-# ============================================================
-
-async def send_existing_media(
-    message
-):
-
-    print(
-        "Sending existing Telegram media directly...",
-        flush=True
-    )
-
-    await client.send_file(
-        DESTINATION_CHANNEL,
-        message.media,
-        caption=None,
-        force_document=True
-    )
-
-    print(
-        "✓ Sent without downloading to GitHub",
-        flush=True
-    )
-
-
-# ============================================================
 # MAIN
 # ============================================================
 
@@ -780,9 +841,13 @@ async def main():
         flush=True
     )
 
-    forwarded = (
-        load_forwarded_messages()
-    )
+
+    # ========================================================
+    # LOAD DUPLICATE DATABASE
+    # ========================================================
+
+    forwarded = load_forwarded_messages()
+
 
     forwarded_indian = set(
         int(x)
@@ -792,6 +857,7 @@ async def main():
         )
     )
 
+
     forwarded_international = set(
         int(x)
         for x in forwarded.get(
@@ -800,7 +866,9 @@ async def main():
         )
     )
 
+
     matches = []
+
 
     # ========================================================
     # INDIAN CHANNEL
@@ -811,6 +879,7 @@ async def main():
         flush=True
     )
 
+
     async for message in client.iter_messages(
         INDIAN_CHANNEL,
         limit=100
@@ -819,28 +888,34 @@ async def main():
         if not message.file:
             continue
 
+
         if not is_recent_message(
             message
         ):
             continue
 
+
         if message.id in forwarded_indian:
             continue
+
 
         filename = (
             message.file.name
             or ""
         )
 
+
         caption = (
             message.text
             or ""
         )
 
+
         paper = identify_indian_paper(
             filename,
             caption
         )
+
 
         if paper:
 
@@ -852,6 +927,7 @@ async def main():
                 )
             )
 
+
     # ========================================================
     # INTERNATIONAL CHANNEL
     # ========================================================
@@ -861,6 +937,7 @@ async def main():
         flush=True
     )
 
+
     async for message in client.iter_messages(
         INTERNATIONAL_CHANNEL,
         limit=100
@@ -869,28 +946,34 @@ async def main():
         if not message.file:
             continue
 
+
         if not is_recent_message(
             message
         ):
             continue
 
+
         if message.id in forwarded_international:
             continue
+
 
         filename = (
             message.file.name
             or ""
         )
 
+
         caption = (
             message.text
             or ""
         )
 
+
         paper = identify_international_paper(
             filename,
             caption
         )
+
 
         if paper:
 
@@ -902,6 +985,7 @@ async def main():
                 )
             )
 
+
     # ========================================================
     # OLDEST FIRST
     # ========================================================
@@ -910,9 +994,11 @@ async def main():
         key=lambda item: item[0].id
     )
 
+
     print(
         flush=True
     )
+
 
     print(
         f"Found {len(matches)} new "
@@ -920,12 +1006,15 @@ async def main():
         flush=True
     )
 
+
     print(
         flush=True
     )
 
+
     sent_count = 0
     failed_count = 0
+
 
     # ========================================================
     # PROCESS
@@ -937,54 +1026,66 @@ async def main():
         source_type
     ) in matches:
 
+
         filename = (
             message.file.name
             or ""
         )
+
 
         print(
             "--------------------------------------",
             flush=True
         )
 
+
         print(
             f"Paper: {paper}",
             flush=True
         )
+
 
         print(
             f"Message ID: {message.id}",
             flush=True
         )
 
+
         print(
             f"File: {filename}",
             flush=True
         )
 
+
         temporary_directory = None
+
 
         try:
 
-            # ------------------------------------------------
+
+            # =================================================
             # INDIAN
             #
-            # Download only because the PDF must be cleaned.
-            # ------------------------------------------------
+            # Download → clean → rename → upload
+            # =================================================
 
             if source_type == "indian":
+
 
                 (
                     upload_path,
                     temporary_directory
                 ) = await prepare_indian_pdf(
-                    message
+                    message,
+                    paper
                 )
+
 
                 print(
                     "Uploading cleaned PDF...",
                     flush=True
                 )
+
 
                 await client.send_file(
                     DESTINATION_CHANNEL,
@@ -993,68 +1094,89 @@ async def main():
                     force_document=True
                 )
 
+
                 print(
-                    "✓ Cleaned PDF sent",
+                    f"✓ Sent as: "
+                    f"{os.path.basename(upload_path)}",
                     flush=True
                 )
+
 
                 forwarded_indian.add(
                     message.id
                 )
 
+
                 forwarded["indian"] = sorted(
                     forwarded_indian
                 )
 
-            # ------------------------------------------------
+
+            # =================================================
             # INTERNATIONAL
             #
-            # DO NOT DOWNLOAD.
-            # ------------------------------------------------
+            # NO DOWNLOAD.
+            # NO UPLOAD FROM GITHUB.
+            #
+            # Reuse Telegram media and rename it.
+            # =================================================
 
             else:
 
+
                 await send_existing_media(
-                    message
+                    message,
+                    paper
                 )
+
 
                 forwarded_international.add(
                     message.id
                 )
 
+
                 forwarded["international"] = sorted(
                     forwarded_international
                 )
 
-            # ------------------------------------------------
-            # Only mark successful uploads.
-            # ------------------------------------------------
+
+            # =================================================
+            # SAVE ONLY AFTER SUCCESS
+            # =================================================
 
             save_forwarded_messages(
                 forwarded
             )
 
+
             sent_count += 1
 
+
         except Exception as error:
+
 
             print(
                 "✗ Sending failed",
                 flush=True
             )
 
+
             print(
                 f"Error: {error}",
                 flush=True
             )
 
+
             failed_count += 1
 
+
         finally:
+
 
             cleanup_directory(
                 temporary_directory
             )
+
 
     # ========================================================
     # SUMMARY
@@ -1064,25 +1186,30 @@ async def main():
         flush=True
     )
 
+
     print(
         "======================================",
         flush=True
     )
+
 
     print(
         f"Sent this run: {sent_count}",
         flush=True
     )
 
+
     print(
         f"Failed: {failed_count}",
         flush=True
     )
 
+
     print(
         "Finished.",
         flush=True
     )
+
 
     print(
         "======================================",
@@ -1091,7 +1218,7 @@ async def main():
 
 
 # ============================================================
-# ONLY RUN WHEN EXECUTED DIRECTLY
+# RUN
 # ============================================================
 
 if __name__ == "__main__":
