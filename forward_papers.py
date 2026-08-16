@@ -51,7 +51,7 @@ DESTINATION_CHANNEL = -1004486510815
 
 
 # ============================================================
-# PROCESS ONLY RECENT MESSAGES
+# RECENT MESSAGE LIMIT
 # ============================================================
 
 MAX_MESSAGE_AGE = timedelta(hours=48)
@@ -240,7 +240,6 @@ def identify_indian_paper(
         ):
 
             excluded = [
-
                 "kochi",
                 "hyderabad",
                 "goa",
@@ -252,7 +251,6 @@ def identify_indian_paper(
                 "kolkata",
                 "pune",
                 "ahmedabad",
-
             ]
 
             if not any(
@@ -282,7 +280,6 @@ def identify_indian_paper(
         ):
 
             excluded = [
-
                 "delhi city",
                 "west delhi",
                 "south delhi",
@@ -296,7 +293,6 @@ def identify_indian_paper(
                 "navi mumbai",
                 "bengaluru",
                 "bangalore",
-
             ]
 
             if not any(
@@ -323,14 +319,12 @@ def identify_indian_paper(
         ):
 
             excluded = [
-
                 "mumbai",
                 "bangalore",
                 "bengaluru",
                 "hyderabad",
                 "chennai",
                 "kolkata",
-
             ]
 
             if not any(
@@ -358,27 +352,17 @@ def identify_international_paper(
     ).lower()
 
 
-    # ========================================================
-    # EXCLUDE SUPPLEMENTS
-    #
-    # The source contains:
-    #
-    # The Times - Magazine
-    # The Times - Culture
-    # The Times - Style
-    #
-    # These are NOT treated as newspapers.
-    # ========================================================
+    # --------------------------------------------------------
+    # EXCLUDE TIMES SUPPLEMENTS
+    # --------------------------------------------------------
 
     supplement_patterns = [
-
         r"the[\s_-]+times[\s_-]+.*magazine",
         r"the[\s_-]+times[\s_-]+.*culture",
         r"the[\s_-]+times[\s_-]+.*style",
         r"\btimes[\s_-]+magazine\b",
         r"\btimes[\s_-]+culture\b",
         r"\btimes[\s_-]+style\b",
-
     ]
 
     for pattern in supplement_patterns:
@@ -391,9 +375,9 @@ def identify_international_paper(
             return None
 
 
-    # ========================================================
-    # THE WASHINGTON POST
-    # ========================================================
+    # --------------------------------------------------------
+    # WASHINGTON POST
+    # --------------------------------------------------------
 
     if re.search(
         r"washington[\s_-]+post",
@@ -403,9 +387,9 @@ def identify_international_paper(
         return "The Washington Post"
 
 
-    # ========================================================
-    # THE GUARDIAN
-    # ========================================================
+    # --------------------------------------------------------
+    # GUARDIAN
+    # --------------------------------------------------------
 
     if re.search(
         r"the[\s_-]+guardian"
@@ -416,9 +400,9 @@ def identify_international_paper(
         return "The Guardian"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # FINANCIAL TIMES UK
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"\bft[\s_-]+uk\b"
@@ -429,9 +413,9 @@ def identify_international_paper(
         return "Financial Times UK"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # FINANCIAL TIMES EU
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"\bft[\s_-]+eu\b"
@@ -443,9 +427,9 @@ def identify_international_paper(
         return "Financial Times EU"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # FINANCIAL TIMES US
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"\bft[\s_-]+us\b"
@@ -456,9 +440,9 @@ def identify_international_paper(
         return "Financial Times US"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # NEW YORK TIMES
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"\bnyt\b"
@@ -473,9 +457,9 @@ def identify_international_paper(
         return "The New York Times"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # WALL STREET JOURNAL
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"wall[\s_-]+street[\s_-]+journal"
@@ -486,9 +470,9 @@ def identify_international_paper(
         return "The Wall Street Journal"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # DAILY TELEGRAPH
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"daily[\s_-]+telegraph",
@@ -498,9 +482,9 @@ def identify_international_paper(
         return "Daily Telegraph"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # DAILY MAIL
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"daily[\s_-]+mail",
@@ -510,9 +494,9 @@ def identify_international_paper(
         return "Daily Mail"
 
 
-    # ========================================================
-    # THE OBSERVER
-    # ========================================================
+    # --------------------------------------------------------
+    # OBSERVER
+    # --------------------------------------------------------
 
     if re.search(
         r"the[\s_-]+observer"
@@ -523,9 +507,9 @@ def identify_international_paper(
         return "The Observer"
 
 
-    # ========================================================
-    # THE INDEPENDENT
-    # ========================================================
+    # --------------------------------------------------------
+    # INDEPENDENT
+    # --------------------------------------------------------
 
     if re.search(
         r"the[\s_-]+independent"
@@ -536,32 +520,21 @@ def identify_international_paper(
         return "The Independent"
 
 
-    # ========================================================
-    # THE TIMES UK
-    # ========================================================
+    # --------------------------------------------------------
+    # TIMES UK
+    # --------------------------------------------------------
 
     if re.search(
-        r"the[\s_-]+times[\s_-]+uk"
-        r"|the[\s_-]+times[\s_-]+\d{1,2}[\s_-]+"
-        r"(?:august|september|october|november|december|"
-        r"january|february|march|april|may|june|july)",
+        r"the[\s_-]+times[\s_-]+uk",
         text
     ):
 
         return "The Times UK"
 
 
-    if re.search(
-        r"\bthe[\s_-]+times[\s_-]+uk\b",
-        text
-    ):
-
-        return "The Times UK"
-
-
-    # ========================================================
-    # THE SUN UK
-    # ========================================================
+    # --------------------------------------------------------
+    # SUN UK
+    # --------------------------------------------------------
 
     if re.search(
         r"the[\s_-]+sun[\s_-]+uk",
@@ -571,9 +544,9 @@ def identify_international_paper(
         return "The Sun UK"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # DAILY EXPRESS
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"daily[\s_-]+express",
@@ -583,9 +556,9 @@ def identify_international_paper(
         return "Daily Express"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # DAILY MIRROR
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"daily[\s_-]+mirror",
@@ -595,9 +568,9 @@ def identify_international_paper(
         return "Daily Mirror"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # I NEWSPAPER
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"the[\s_-]+i[\s_-]+newspaper"
@@ -608,9 +581,9 @@ def identify_international_paper(
         return "The i Newspaper"
 
 
-    # ========================================================
-    # CANADA - CALGARY HERALD
-    # ========================================================
+    # --------------------------------------------------------
+    # CALGARY HERALD
+    # --------------------------------------------------------
 
     if re.search(
         r"calgary[\s_-]+herald",
@@ -620,9 +593,9 @@ def identify_international_paper(
         return "Calgary Herald"
 
 
-    # ========================================================
-    # CANADA - NATIONAL POST
-    # ========================================================
+    # --------------------------------------------------------
+    # NATIONAL POST
+    # --------------------------------------------------------
 
     if re.search(
         r"national[\s_-]+post",
@@ -632,9 +605,9 @@ def identify_international_paper(
         return "National Post"
 
 
-    # ========================================================
-    # CANADA - GLOBE AND MAIL
-    # ========================================================
+    # --------------------------------------------------------
+    # GLOBE AND MAIL
+    # --------------------------------------------------------
 
     if re.search(
         r"globe[\s_-]+and[\s_-]+mail",
@@ -644,9 +617,9 @@ def identify_international_paper(
         return "The Globe and Mail"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # CHICAGO TRIBUNE
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"chicago[\s_-]+tribune",
@@ -656,9 +629,9 @@ def identify_international_paper(
         return "Chicago Tribune"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # USA TODAY
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"usa[\s_-]+today",
@@ -668,9 +641,9 @@ def identify_international_paper(
         return "USA Today"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # BOSTON GLOBE
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"boston[\s_-]+globe",
@@ -680,9 +653,9 @@ def identify_international_paper(
         return "The Boston Globe"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # NEW YORK POST
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"new[\s_-]+york[\s_-]+post",
@@ -692,9 +665,9 @@ def identify_international_paper(
         return "New York Post"
 
 
-    # ========================================================
+    # --------------------------------------------------------
     # LOS ANGELES TIMES
-    # ========================================================
+    # --------------------------------------------------------
 
     if re.search(
         r"la[\s_-]+times"
@@ -719,9 +692,7 @@ def is_promotional_page(text):
 
     text = text.lower()
 
-
     indicators = [
-
         "newstg8",
         "newstg",
         "8890005082",
@@ -734,12 +705,9 @@ def is_promotional_page(text):
         "receive daily editions",
         "daily editions of all popular epapers",
         "t.me/newstg8",
-
     ]
 
-
     matches = 0
-
 
     for indicator in indicators:
 
@@ -747,16 +715,11 @@ def is_promotional_page(text):
 
             matches += 1
 
-
     if "newstg8" in text:
-
         return True
-
 
     if "t.me/newstg8" in text:
-
         return True
-
 
     return matches >= 2
 
@@ -921,7 +884,6 @@ async def prepare_indian_pdf(
             flush=True
         )
 
-
         if os.path.abspath(
             original_path
         ) != os.path.abspath(
@@ -932,7 +894,6 @@ async def prepare_indian_pdf(
                 original_path,
                 cleaned_path
             )
-
 
     else:
 
@@ -956,13 +917,18 @@ async def prepare_indian_pdf(
 
 
 # ============================================================
-# SEND INTERNATIONAL MEDIA
+# INTERNATIONAL SEND
 #
 # IMPORTANT:
-# The PDF is NOT downloaded to GitHub.
 #
-# Telegram's existing media is reused directly.
-# Only the filename is changed.
+# NO PDF DOWNLOAD.
+# NO TEMPORARY INTERNATIONAL PDF.
+# NO PYMUPDF.
+#
+# The existing Telegram document is reused directly.
+# Telegram retains the document's existing thumbnail.
+#
+# Only the filename attribute is overridden.
 # ============================================================
 
 async def send_existing_media(
@@ -987,6 +953,15 @@ async def send_existing_media(
         flush=True
     )
 
+
+    # --------------------------------------------------------
+    # Reuse Telegram's existing document.
+    #
+    # We do NOT download the PDF.
+    #
+    # Telegram already stores the document and any thumbnail
+    # associated with it.
+    # --------------------------------------------------------
 
     filename_attribute = (
         types.DocumentAttributeFilename(
@@ -1022,7 +997,6 @@ def cleanup_directory(
 
     if not directory:
         return
-
 
     try:
 
@@ -1091,7 +1065,7 @@ async def main():
 
 
     # ========================================================
-    # CHECK INDIAN NEWSPAPERS
+    # INDIAN CHANNEL
     # ========================================================
 
     print(
@@ -1152,7 +1126,7 @@ async def main():
 
 
     # ========================================================
-    # CHECK INTERNATIONAL NEWSPAPERS
+    # INTERNATIONAL CHANNEL
     # ========================================================
 
     print(
@@ -1244,7 +1218,7 @@ async def main():
 
 
     # ========================================================
-    # PROCESS NEWSPAPERS
+    # PROCESS
     # ========================================================
 
     for (
@@ -1292,11 +1266,6 @@ async def main():
 
             # =================================================
             # INDIAN
-            #
-            # Download
-            # Clean
-            # Rename
-            # Upload
             # =================================================
 
             if source_type == "indian":
@@ -1345,10 +1314,7 @@ async def main():
             # =================================================
             # INTERNATIONAL
             #
-            # NO DOWNLOAD TO GITHUB
-            #
-            # Telegram → Telegram
-            # Rename only
+            # NO PDF DOWNLOAD
             # =================================================
 
             else:
@@ -1371,7 +1337,7 @@ async def main():
 
 
             # =================================================
-            # SAVE ONLY AFTER SUCCESS
+            # SAVE DATABASE AFTER SUCCESS
             # =================================================
 
             save_forwarded_messages(
@@ -1448,7 +1414,7 @@ async def main():
 
 
 # ============================================================
-# START
+# RUN
 # ============================================================
 
 if __name__ == "__main__":
