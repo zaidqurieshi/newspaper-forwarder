@@ -1,4 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
 .venv/
+
+# Environment variables / secrets
 .env
+
+# Telegram local session files
 *.session
-forwarded_messages.json
+*.session-journal
+
+# Local forwarding database
+# DO NOT ignore forwarded_messages.json
+# GitHub Actions needs to persist this file.
