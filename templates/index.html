@@ -8,18 +8,14 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Newspaper Library</title>
+    <title>Open Source News Archive</title>
 
     <meta
         name="description"
-        content="Telegram-backed newspaper library"
+        content="Open Source News Archive — newspapers from around the world."
     >
 
     <style>
-
-        /* =====================================================
-           RESET
-        ===================================================== */
 
         * {
             margin: 0;
@@ -45,29 +41,24 @@
 
             background:
                 radial-gradient(
-                    circle at 15% 10%,
-                    rgba(99, 102, 241, 0.18),
+                    circle at 12% 8%,
+                    rgba(99, 102, 241, 0.20),
                     transparent 28%
                 ),
                 radial-gradient(
-                    circle at 85% 20%,
-                    rgba(168, 85, 247, 0.14),
+                    circle at 88% 18%,
+                    rgba(168, 85, 247, 0.15),
                     transparent 30%
                 ),
                 radial-gradient(
                     circle at 50% 90%,
                     rgba(59, 130, 246, 0.10),
-                    transparent 30%
+                    transparent 32%
                 ),
                 #07080c;
 
             overflow-x: hidden;
         }
-
-
-        /* =====================================================
-           BACKGROUND
-        ===================================================== */
 
         body::before {
             content: "";
@@ -101,7 +92,6 @@
             z-index: -2;
         }
 
-
         .ambient {
             position: fixed;
 
@@ -110,7 +100,7 @@
 
             border-radius: 50%;
 
-            filter: blur(100px);
+            filter: blur(110px);
 
             opacity: 0.12;
 
@@ -137,11 +127,6 @@
             background: #2563eb;
         }
 
-
-        /* =====================================================
-           CONTAINER
-        ===================================================== */
-
         .container {
             width: min(
                 1400px,
@@ -151,10 +136,7 @@
             margin: 0 auto;
         }
 
-
-        /* =====================================================
-           NAVBAR
-        ===================================================== */
+        /* NAVBAR */
 
         .navbar {
             position: sticky;
@@ -167,13 +149,14 @@
 
             padding: 14px 18px;
 
-            border: 1px solid
+            border:
+                1px solid
                 rgba(255,255,255,0.10);
 
             border-radius: 18px;
 
             background:
-                rgba(12, 14, 20, 0.68);
+                rgba(12,14,20,0.68);
 
             backdrop-filter:
                 blur(24px);
@@ -196,11 +179,6 @@
             gap: 20px;
         }
 
-
-        /* =====================================================
-           LOGO
-        ===================================================== */
-
         .logo {
             display: flex;
 
@@ -208,11 +186,9 @@
 
             gap: 12px;
 
-            text-decoration: none;
-
             color: white;
 
-            min-width: 0;
+            text-decoration: none;
         }
 
         .logo-mark {
@@ -258,11 +234,6 @@
             margin-top: 2px;
         }
 
-
-        /* =====================================================
-           NAV STATUS
-        ===================================================== */
-
         .status {
             display: flex;
 
@@ -290,14 +261,11 @@
                 rgba(34,197,94,0.8);
         }
 
-
-        /* =====================================================
-           HERO
-        ===================================================== */
+        /* HERO */
 
         .hero {
             padding:
-                90px 0
+                95px 0
                 55px;
         }
 
@@ -320,11 +288,13 @@
 
             gap: 8px;
 
-            padding: 7px 11px;
+            padding:
+                7px 11px;
 
-            margin-bottom: 20px;
+            margin-bottom: 22px;
 
-            border: 1px solid
+            border:
+                1px solid
                 rgba(255,255,255,0.10);
 
             border-radius: 999px;
@@ -355,41 +325,47 @@
         }
 
         .hero h1 {
-            max-width: 850px;
+            max-width: 950px;
 
             font-size:
                 clamp(
-                    44px,
-                    7vw,
-                    92px
+                    52px,
+                    8vw,
+                    108px
                 );
 
-            line-height: 0.96;
+            line-height: 0.94;
 
-            letter-spacing: -5px;
+            letter-spacing: -6px;
 
             font-weight: 800;
+        }
+
+        .hero-title-white {
+            color: #ffffff;
         }
 
         .gradient-text {
             background:
                 linear-gradient(
                     100deg,
-                    #ffffff 5%,
-                    #c4b5fd 45%,
-                    #818cf8 85%
+                    #ffffff 0%,
+                    #ddd6fe 40%,
+                    #a78bfa 75%,
+                    #818cf8 100%
                 );
 
             -webkit-background-clip: text;
+
             background-clip: text;
 
             color: transparent;
         }
 
         .hero-description {
-            max-width: 680px;
+            max-width: 700px;
 
-            margin-top: 25px;
+            margin-top: 28px;
 
             color: #969dac;
 
@@ -398,10 +374,34 @@
             line-height: 1.7;
         }
 
+        /* CREDIT */
 
-        /* =====================================================
-           STATS
-        ===================================================== */
+        .credit {
+            margin-top: 20px;
+
+            color: #737b8c;
+
+            font-size: 12px;
+        }
+
+        .credit a {
+            color: #a78bfa;
+
+            font-weight: 650;
+
+            text-decoration: none;
+
+            transition:
+                color 0.2s ease;
+        }
+
+        .credit a:hover {
+            color: #c4b5fd;
+
+            text-decoration: underline;
+        }
+
+        /* STATS */
 
         .stats {
             display: grid;
@@ -451,10 +451,7 @@
             letter-spacing: 0.7px;
         }
 
-
-        /* =====================================================
-           SEARCH
-        ===================================================== */
+        /* SEARCH */
 
         .search-area {
             margin-bottom: 50px;
@@ -531,10 +528,7 @@
                 rgba(99,102,241,0.08);
         }
 
-
-        /* =====================================================
-           SECTION
-        ===================================================== */
+        /* SECTIONS */
 
         .section {
             margin-bottom: 65px;
@@ -574,10 +568,7 @@
             font-size: 12px;
         }
 
-
-        /* =====================================================
-           NEWSPAPER GRID
-        ===================================================== */
+        /* PAPER GRID */
 
         .papers-grid {
             display: grid;
@@ -591,10 +582,7 @@
             gap: 15px;
         }
 
-
-        /* =====================================================
-           PAPER CARD
-        ===================================================== */
+        /* PAPER CARD */
 
         .paper-card {
             position: relative;
@@ -683,10 +671,7 @@
                 rgba(0,0,0,0.3);
         }
 
-
-        /* =====================================================
-           PAPER ICON
-           ===================================================== */
+        /* NEWSPAPER ICON */
 
         .paper-icon {
             width: 52px;
@@ -699,11 +684,11 @@
 
             margin-bottom: 24px;
 
-            border-radius: 15px;
-
             border:
                 1px solid
                 rgba(255,255,255,0.08);
+
+            border-radius: 15px;
 
             background:
                 rgba(255,255,255,0.05);
@@ -717,10 +702,7 @@
                 rgba(255,255,255,0.04);
         }
 
-
-        /* =====================================================
-           PAPER INFORMATION
-        ===================================================== */
+        /* PAPER INFO */
 
         .paper-name {
             font-size: 17px;
@@ -759,10 +741,7 @@
             background: #555d6c;
         }
 
-
-        /* =====================================================
-           DOWNLOAD
-        ===================================================== */
+        /* DOWNLOAD */
 
         .download {
             display: flex;
@@ -780,11 +759,11 @@
 
             padding: 0 15px;
 
-            border-radius: 13px;
-
             border:
                 1px solid
                 rgba(129,140,248,0.25);
+
+            border-radius: 13px;
 
             background:
                 linear-gradient(
@@ -800,8 +779,6 @@
             font-size: 12px;
 
             font-weight: 700;
-
-            letter-spacing: 0.1px;
 
             box-shadow:
                 0 10px 25px
@@ -829,10 +806,7 @@
                 translateY(1px);
         }
 
-
-        /* =====================================================
-           EMPTY STATE
-        ===================================================== */
+        /* EMPTY */
 
         .empty {
             display: none;
@@ -871,10 +845,7 @@
             font-size: 13px;
         }
 
-
-        /* =====================================================
-           FOOTER
-        ===================================================== */
+        /* FOOTER */
 
         footer {
             padding:
@@ -900,6 +871,29 @@
             gap: 20px;
         }
 
+        .footer-credit {
+            color: #737b8c;
+
+            font-size: 12px;
+        }
+
+        .footer-credit a {
+            color: #a78bfa;
+
+            font-weight: 650;
+
+            text-decoration: none;
+
+            transition:
+                color 0.2s ease;
+        }
+
+        .footer-credit a:hover {
+            color: #c4b5fd;
+
+            text-decoration: underline;
+        }
+
         .footer-status {
             display: flex;
 
@@ -915,93 +909,13 @@
             border-radius: 50%;
 
             background: #22c55e;
+
+            box-shadow:
+                0 0 8px
+                rgba(34,197,94,0.6);
         }
 
-
-        /* =====================================================
-           LOADING OVERLAY
-        ===================================================== */
-
-        .loading {
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 999;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            background:
-                rgba(5,6,10,0.88);
-
-            backdrop-filter:
-                blur(18px);
-
-            -webkit-backdrop-filter:
-                blur(18px);
-
-            opacity: 0;
-
-            pointer-events: none;
-
-            transition: opacity .2s;
-        }
-
-        .loading.active {
-            opacity: 1;
-
-            pointer-events: all;
-        }
-
-        .loading-box {
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
-
-            gap: 15px;
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-
-            border:
-                3px solid
-                rgba(255,255,255,0.12);
-
-            border-top-color:
-                #8b5cf6;
-
-            border-radius: 50%;
-
-            animation:
-                spin .75s linear infinite;
-        }
-
-        .loading-text {
-            color: #a2a9b8;
-
-            font-size: 12px;
-        }
-
-        @keyframes spin {
-
-            to {
-                transform:
-                    rotate(360deg);
-            }
-
-        }
-
-
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
+        /* RESPONSIVE */
 
         @media (max-width: 1150px) {
 
@@ -1014,7 +928,6 @@
             }
 
         }
-
 
         @media (max-width: 850px) {
 
@@ -1037,11 +950,10 @@
             }
 
             .hero h1 {
-                letter-spacing: -3px;
+                letter-spacing: -4px;
             }
 
         }
-
 
         @media (max-width: 560px) {
 
@@ -1069,7 +981,7 @@
             }
 
             .hero h1 {
-                font-size: 48px;
+                font-size: 51px;
 
                 letter-spacing: -3px;
             }
@@ -1150,11 +1062,11 @@
                     <div>
 
                         <div class="logo-text">
-                            Newspaper Library
+                            Open Source News Archive
                         </div>
 
                         <div class="logo-subtitle">
-                            Telegram-powered archive
+                            Open Source News Archive
                         </div>
 
                     </div>
@@ -1166,7 +1078,7 @@
 
                     <span class="status-dot"></span>
 
-                    Live library
+                    Live archive
 
                 </div>
 
@@ -1189,16 +1101,21 @@
 
                         <span class="eyebrow-dot"></span>
 
-                        Daily newspaper archive
+                        Open source newspaper archive
 
                     </div>
 
 
                     <h1>
 
-                        Your papers.
+                        <span class="hero-title-white">
+                            The world's
+                        </span>
+
+                        <br>
+
                         <span class="gradient-text">
-                            One place.
+                            front page.
                         </span>
 
                     </h1>
@@ -1206,14 +1123,32 @@
 
                     <p class="hero-description">
 
-                        Browse today's Indian and international
-                        newspapers. Files are delivered directly
-                        from Telegram when you download them.
+                        Open Source News Archive.
+                        Newspapers from India and around
+                        the world, collected in one place
+                        and delivered directly from Telegram.
+
+                    </p>
+
+
+                    <p class="credit">
+
+                        Open Source Database by
+
+                        <a
+                            href="https://www.t.me/madeinkashmir"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Sentinel
+                        </a>
 
                     </p>
 
                 </div>
 
+
+                <!-- STATS -->
 
                 <div class="stats">
 
@@ -1235,9 +1170,7 @@
 
                     <div class="stat">
 
-                        <div
-                            class="stat-number"
-                        >
+                        <div class="stat-number">
                             2
                         </div>
 
@@ -1537,8 +1470,18 @@
 
             <div class="footer-inner">
 
-                <div>
-                    Newspaper Library
+                <div class="footer-credit">
+
+                    Open Source Database by
+
+                    <a
+                        href="https://www.t.me/madeinkashmir"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Sentinel
+                    </a>
+
                 </div>
 
 
@@ -1558,36 +1501,10 @@
 
 
     <!-- =====================================================
-         LOADING
-         ===================================================== -->
-
-    <div
-        class="loading"
-        id="loading"
-    >
-
-        <div class="loading-box">
-
-            <div class="spinner"></div>
-
-            <div class="loading-text">
-                Connecting to Telegram...
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
          JAVASCRIPT
          ===================================================== -->
 
     <script>
-
-        /* =================================================
-           SEARCH
-           ================================================= */
 
         const searchInput =
             document.getElementById(
@@ -1715,66 +1632,6 @@
         );
 
 
-        /* =================================================
-           DOWNLOAD FEEDBACK
-           ================================================= */
-
-        const loading =
-            document.getElementById(
-                "loading"
-            );
-
-
-        const downloadLinks =
-            document.querySelectorAll(
-                ".download"
-            );
-
-
-        downloadLinks.forEach(
-            link => {
-
-                link.addEventListener(
-                    "click",
-                    () => {
-
-                        /*
-                         * Do NOT block navigation.
-                         *
-                         * The PDF is streamed directly
-                         * by FastAPI from Telegram.
-                         */
-
-                        link.style.opacity =
-                            "0.7";
-
-                        link.style.pointerEvents =
-                            "none";
-
-                        setTimeout(
-                            () => {
-
-                                link.style.opacity =
-                                    "";
-
-                                link.style.pointerEvents =
-                                    "";
-
-                            },
-                            2500
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-        /* =================================================
-           KEYBOARD SHORTCUT
-           ================================================= */
-
         document.addEventListener(
             "keydown",
             event => {
@@ -1791,6 +1648,7 @@
 
                 }
 
+
                 if (
                     event.key === "Escape"
                 ) {
@@ -1806,10 +1664,6 @@
             }
         );
 
-
-        /* =================================================
-           INITIAL STATE
-           ================================================= */
 
         filterPapers();
 
