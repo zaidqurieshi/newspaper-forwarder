@@ -1,0 +1,4 @@
+.venv/
+.env
+*.session
+forwarded_messages.json
