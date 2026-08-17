@@ -1,4 +1,6 @@
 telethon
 python-dotenv
-pypdf
-pyaes-whl
+pymupdf
+fastapi
+uvicorn[standard]
+jinja2
