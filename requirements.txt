@@ -4,3 +4,4 @@ pymupdf
 fastapi
 uvicorn[standard]
 jinja2
+pypdf
