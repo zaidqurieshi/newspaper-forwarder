@@ -1,13 +1,16 @@
 name: Newspaper Forwarder
 
 on:
+  # Run every hour at minute 17 (avoids the top of the hour crowd).
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# Prevent overlapping runs from clobbering each other's database
+# updates when cron schedules overlap or a run is slow.
 concurrency:
   group: newspaper-forwarder
   cancel-in-progress: false
@@ -15,6 +18,8 @@ concurrency:
 jobs:
   forward-newspapers:
     runs-on: ubuntu-latest
+    # Give the job up to 10 minutes so a large backlog can drain.
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
