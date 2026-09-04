@@ -1175,6 +1175,10 @@ def is_promotional_page(text):
         "receive daily editions",
         "daily editions of all popular epapers",
         "t.me/newstg8",
+        "all english newspaper and magazines",
+        "all english newspapers",
+        "join our telegram channel",
+        "english_newspaper_banna",
     ]
 
     matches = 0
