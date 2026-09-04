@@ -1197,21 +1197,13 @@ def is_promotional_page(text):
 # ============================================================
 # INDIAN PAPERS THAT ARE SCANNED FOR PROMOTIONAL PAGES
 #
-# Only these papers are downloaded, scanned, and have their
-# promotional pages stripped. All other Indian papers
-# (Hindustan Times, Economic Times, ...) are forwarded
-# directly from Telegram without being modified.
+# Every Indian paper is downloaded, scanned, and has detected
+# promotional pages stripped before it is re-uploaded.
 # ============================================================
-
-PAPERS_TO_CLEAN = {
-    "Greater Kashmir",
-    "Times of India",
-}
-
 
 def _should_clean_paper(paper):
 
-    return paper in PAPERS_TO_CLEAN
+    return True
 
 
 # ============================================================
@@ -1307,14 +1299,8 @@ def clean_indian_pdf(
 # filename (e.g. "Hindustan Times - 31st August 2026.pdf")
 # rather than the original Telegram filename.
 #
-# For papers listed in PAPERS_TO_CLEAN (Greater Kashmir and
-# Times of India) the downloaded file is additionally
-# scanned for promotional pages and a cleaned PDF is
-# produced.
-#
-# For all other Indian papers (Hindustan Times, Economic
-# Times, ...) the file is simply saved under the new
-# filename and re-uploaded as-is.
+# The downloaded file is scanned for promotional pages and a
+# cleaned PDF is produced for every Indian paper.
 # ============================================================
 
 async def prepare_indian_pdf(
@@ -1441,51 +1427,10 @@ async def prepare_indian_pdf(
 # ============================================================
 # INTERNATIONAL HANDLING
 #
-# Telegram preserves the filename when an existing document
-# reference is re-sent. International papers therefore need
-# to be downloaded and uploaded once to apply the new name.
+# International papers are not downloaded or renamed. They
+# reuse the existing Telegram media reference and preserve
+# the original Telegram filename.
 # ============================================================
-
-
-async def prepare_renamed_pdf(
-    message,
-    paper
-):
-
-    final_filename = make_filename(
-        paper,
-        message
-    )
-
-    temporary_directory = tempfile.mkdtemp(
-        prefix="newspaper_"
-    )
-
-    upload_path = os.path.join(
-        temporary_directory,
-        final_filename
-    )
-
-    print(
-        "Downloading PDF to apply the new filename...",
-        flush=True
-    )
-
-    await client.download_media(
-        message,
-        file=upload_path
-    )
-
-    print(
-        f"Final filename: {final_filename}",
-        flush=True
-    )
-
-    return (
-        upload_path,
-        temporary_directory,
-        final_filename
-    )
 
 
 # ============================================================
@@ -1982,32 +1927,24 @@ async def main():
             # =================================================
             # INTERNATIONAL
             #
-            # Telegram preserves the filename on an existing
-            # document reference, so download and re-upload the
-            # file without any PDF processing.
+            # Reuse the existing Telegram media reference so
+            # international papers keep their original names
+            # and do not require a slow download.
             # =================================================
 
             else:
 
 
-                (
-                    upload_path,
-                    temporary_directory,
-                    final_filename
-                ) = await prepare_renamed_pdf(
-                    message,
-                    paper,
-                )
-
                 print(
-                    "Uploading renamed international PDF...",
+                    "Re-sending existing Telegram media "
+                    "(no download, original name preserved)...",
                     flush=True
                 )
 
 
                 await client.send_file(
                     DESTINATION_CHANNEL,
-                    upload_path,
+                    message.media,
                     caption=None,
                     force_document=True
                 )
@@ -2015,7 +1952,7 @@ async def main():
 
                 print(
                     f"✓ Sent as: "
-                    f"{final_filename}",
+                    f"{message.file.name or '(no name)'}",
                     flush=True
                 )
 
