@@ -30,6 +30,8 @@ API_HASH = os.getenv(
 )
 
 SESSION_STRING = os.getenv(
+    "TELEGRAM_SESSION_STRING_WEBSITE"
+) or os.getenv(
     "TELEGRAM_SESSION_STRING"
 )
 
@@ -46,7 +48,8 @@ DESTINATION_CHANNEL = int(
 
 if not SESSION_STRING:
     raise RuntimeError(
-        "TELEGRAM_SESSION_STRING is missing."
+        "TELEGRAM_SESSION_STRING_WEBSITE (or "
+        "TELEGRAM_SESSION_STRING) is missing."
     )
 
 if not API_HASH:
