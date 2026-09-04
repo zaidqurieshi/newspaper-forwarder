@@ -79,10 +79,13 @@ DESTINATION_CHANNEL = -1004486510815
 
 
 # ============================================================
-# RECENT MESSAGE LIMIT
+# TODAY-ONLY WINDOW
+#
+# Only messages posted TODAY (Asia/Kolkata) are eligible for
+# forwarding. Anything posted yesterday or earlier is ignored
+# so the destination channel never gets flooded with a
+# backlog of old papers.
 # ============================================================
-
-MAX_MESSAGE_AGE = timedelta(days=3)
 
 
 # ============================================================
@@ -346,15 +349,13 @@ def mark_sent_today(
 
 
 # ============================================================
-# RECENT MESSAGE CHECK
+# TODAY-ONLY MESSAGE CHECK
 # ============================================================
 
 def is_recent_message(message):
 
     if message.date is None:
         return False
-
-    now = datetime.now(timezone.utc)
 
     message_date = message.date
 
@@ -364,9 +365,27 @@ def is_recent_message(message):
             tzinfo=timezone.utc
         )
 
+    try:
+
+        from zoneinfo import ZoneInfo
+
+        ist_timezone = ZoneInfo("Asia/Kolkata")
+
+    except Exception:
+
+        ist_timezone = timezone(
+            timedelta(hours=5, minutes=30)
+        )
+
+    now_ist = datetime.now(ist_timezone)
+
+    message_ist = message_date.astimezone(
+        ist_timezone
+    )
+
     return (
-        now - message_date
-    ) <= MAX_MESSAGE_AGE
+        message_ist.date() == now_ist.date()
+    )
 
 
 # ============================================================
