@@ -1441,10 +1441,51 @@ async def prepare_indian_pdf(
 # ============================================================
 # INTERNATIONAL HANDLING
 #
-# International papers are NOT downloaded or re-uploaded.
-# They reuse the existing Telegram media reference and only
-# override the document filename at send time.
+# Telegram preserves the filename when an existing document
+# reference is re-sent. International papers therefore need
+# to be downloaded and uploaded once to apply the new name.
 # ============================================================
+
+
+async def prepare_renamed_pdf(
+    message,
+    paper
+):
+
+    final_filename = make_filename(
+        paper,
+        message
+    )
+
+    temporary_directory = tempfile.mkdtemp(
+        prefix="newspaper_"
+    )
+
+    upload_path = os.path.join(
+        temporary_directory,
+        final_filename
+    )
+
+    print(
+        "Downloading PDF to apply the new filename...",
+        flush=True
+    )
+
+    await client.download_media(
+        message,
+        file=upload_path
+    )
+
+    print(
+        f"Final filename: {final_filename}",
+        flush=True
+    )
+
+    return (
+        upload_path,
+        temporary_directory,
+        final_filename
+    )
 
 
 # ============================================================
@@ -1941,38 +1982,34 @@ async def main():
             # =================================================
             # INTERNATIONAL
             #
-            # Reuse the existing Telegram media reference and
-            # change only the destination document filename.
-            # This avoids downloading and re-uploading the PDF.
+            # Telegram preserves the filename on an existing
+            # document reference, so download and re-upload the
+            # file without any PDF processing.
             # =================================================
 
             else:
 
 
-                from telethon.tl.types import DocumentAttributeFilename
-
-                final_filename = make_filename(
+                (
+                    upload_path,
+                    temporary_directory,
+                    final_filename
+                ) = await prepare_renamed_pdf(
+                    message,
                     paper,
-                    message
                 )
 
                 print(
-                    "Re-sending existing Telegram media "
-                    "with renamed filename (no download)...",
+                    "Uploading renamed international PDF...",
                     flush=True
                 )
 
 
                 await client.send_file(
                     DESTINATION_CHANNEL,
-                    message.media,
+                    upload_path,
                     caption=None,
-                    force_document=True,
-                    attributes=[
-                        DocumentAttributeFilename(
-                            file_name=final_filename
-                        )
-                    ]
+                    force_document=True
                 )
 
 
