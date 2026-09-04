@@ -1441,15 +1441,9 @@ async def prepare_indian_pdf(
 # ============================================================
 # INTERNATIONAL HANDLING
 #
-# Per user request (Sept 2026), international papers are
-# NOT downloaded or re-uploaded. They are forwarded as-is
-# via client.forward_messages(), which preserves the
-# original Telegram filename (e.g.
-# "The New York Times 01‹09‹2026.pdf") on the destination
-# channel.
-#
-# Only Indian papers are re-uploaded with a cleaned,
-# renamed file.
+# International papers are NOT downloaded or re-uploaded.
+# They reuse the existing Telegram media reference and only
+# override the document filename at send time.
 # ============================================================
 
 
@@ -1947,27 +1941,24 @@ async def main():
             # =================================================
             # INTERNATIONAL
             #
-            # Per user request (Sept 2026): do NOT download
-            # and re-upload international papers. Re-send the
-            # existing Telegram media object directly via
-            # send_file(message.media, ...) so that:
-            #   1. The destination channel keeps the original
-            #      Telegram filename.
-            #   2. There is NO "Forwarded from <Channel>"
-            #      caption (which forward_messages adds).
-            #   3. The file is not downloaded to disk and
-            #      re-uploaded — Telegram just re-uses the
-            #      same file reference, so even 50-100MB
-            #      papers complete in a few seconds.
+            # Reuse the existing Telegram media reference and
+            # change only the destination document filename.
+            # This avoids downloading and re-uploading the PDF.
             # =================================================
 
             else:
 
 
+                from telethon.tl.types import DocumentAttributeFilename
+
+                final_filename = make_filename(
+                    paper,
+                    message
+                )
+
                 print(
                     "Re-sending existing Telegram media "
-                    "(no 'forwarded from' caption, "
-                    "original name preserved)...",
+                    "with renamed filename (no download)...",
                     flush=True
                 )
 
@@ -1977,12 +1968,17 @@ async def main():
                     message.media,
                     caption=None,
                     force_document=True,
+                    attributes=[
+                        DocumentAttributeFilename(
+                            file_name=final_filename
+                        )
+                    ]
                 )
 
 
                 print(
                     f"✓ Sent as: "
-                    f"{message.file.name or '(no name)'}",
+                    f"{final_filename}",
                     flush=True
                 )
 

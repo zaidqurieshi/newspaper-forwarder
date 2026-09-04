@@ -1,21 +1,3 @@
-import os
-from dotenv import load_dotenv
-from telethon import TelegramClient
-
-load_dotenv()
-
-api_id = int(os.getenv("TELEGRAM_API_ID"))
-api_hash = os.getenv("TELEGRAM_API_HASH")
-
-SOURCE_CHANNEL = -1003645659794
-
-client = TelegramClient(
-    "fresh_newspaper_session",
-    api_id,
-    api_hash
-)
-
-
 def identify_paper(filename, caption):
     text = f"{filename} {caption}".lower()
 
@@ -41,29 +23,19 @@ def identify_paper(filename, caption):
     return None
 
 
-async def main():
-    message = await client.get_messages(
-        SOURCE_CHANNEL,
-        ids=33649
+test_cases = [
+    ("Hindustan Times Delhi 04 September 2026.pdf", "", "Hindustan Times — Delhi"),
+    ("Economic Times Delhi 04 September 2026.pdf", "", "Economic Times — Delhi"),
+    ("Times of India Delhi 04 September 2026.pdf", "", "Times of India — Delhi"),
+    ("Hindustan Times Mumbai 04 September 2026.pdf", "", None),
+]
+
+
+for filename, caption, expected in test_cases:
+    result = identify_paper(filename, caption)
+    assert result == expected, (
+        f"{filename!r}: expected {expected!r}, got {result!r}"
     )
 
-    if not message:
-        print("Message 33649 not found.")
-        return
 
-    filename = message.file.name if message.file else ""
-    caption = message.text or ""
-
-    print("Message ID:", message.id)
-    print("File:", filename)
-    print("Caption:", caption)
-
-    paper = identify_paper(filename, caption)
-
-    print()
-    print("MATCH RESULT:")
-    print(paper if paper else "NO MATCH")
-
-
-with client:
-    client.loop.run_until_complete(main())
+print("ALL MATCHING TESTS PASSED")

@@ -1,5 +1,9 @@
 import os
 
+if os.getenv("RUN_LIVE_TELEGRAM_TESTS") != "1":
+    print("SKIPPED live Telegram test; set RUN_LIVE_TELEGRAM_TESTS=1 to run it")
+    raise SystemExit(0)
+
 from dotenv import load_dotenv
 from telethon import TelegramClient
 from telethon.sessions import StringSession
