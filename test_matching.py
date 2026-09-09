@@ -1,41 +1,40 @@
-def identify_paper(filename, caption):
-    text = f"{filename} {caption}".lower()
+import importlib.util
+import os
+import sys
+import types
 
-    if "greater kashmir" in text:
-        return "Greater Kashmir"
+sys.path.insert(0, ".")
 
-    if ("toi" in text or "times of india" in text) and "delhi" in text:
-        return "Times of India — Delhi"
+# Stub out heavy imports
+sys.modules["telethon"] = types.ModuleType("telethon")
+sys.modules["telethon"].TelegramClient = lambda *a, **k: object()
+sys.modules["telethon.sessions"] = types.ModuleType("telethon.sessions")
+sys.modules["telethon.sessions"].StringSession = lambda *a, **k: object()
+sys.modules["pypdf"] = types.ModuleType("pypdf")
+sys.modules["pypdf"].PdfReader = object
+sys.modules["pypdf"].PdfWriter = object
 
-    if ("ht" in text or "hindustan times" in text) and "delhi" in text:
-        if not any(x in text for x in [
-            "north delhi",
-            "south delhi",
-            "east delhi",
-            "west delhi",
-            "delhi city"
-        ]):
-            return "Hindustan Times — Delhi"
+os.environ["TELEGRAM_API_ID"] = "1"
+os.environ["TELEGRAM_API_HASH"] = "x"
+os.environ["TELEGRAM_SESSION_STRING"] = "x"
 
-    if ("et" in text or "economic times" in text) and "delhi" in text:
-        return "Economic Times — Delhi"
-
-    return None
-
+spec = importlib.util.spec_from_file_location("fp", "forward_papers.py")
+fp = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fp)
 
 test_cases = [
-    ("Hindustan Times Delhi 04 September 2026.pdf", "", "Hindustan Times — Delhi"),
-    ("Economic Times Delhi 04 September 2026.pdf", "", "Economic Times — Delhi"),
-    ("Times of India Delhi 04 September 2026.pdf", "", "Times of India — Delhi"),
-    ("Hindustan Times Mumbai 04 September 2026.pdf", "", None),
+    ("Greater Kashmir ● 09‹09‹2026.pdf", "Greater kashmir ❄️❄️❄️", "Greater Kashmir"),
+    ("TOI ● Delhi Times ● 09‹09‹2026 .pdf", "The Times Of India 🧻 🚽", "Times of India"),
+    ("TOI ● Pune ● 09‹09‹2026 .pdf", "The Times Of India 🧻 🚽", None),
+    ("TOI ● Bombay Times ● 09‹09‹2026.pdf", "The Times Of India 🧻 🚽", None),
+    ("HT ● Delhi ● 09‹09‹2026 Tr.pdf", "The Hindustan Times 🌵", None),
+    ("ET ● Delhi ● 09‹09‹2026 .pdf", "The Economic Times 🍃", None),
 ]
 
-
 for filename, caption, expected in test_cases:
-    result = identify_paper(filename, caption)
+    result = fp.identify_indian_paper(filename, caption)
     assert result == expected, (
         f"{filename!r}: expected {expected!r}, got {result!r}"
     )
-
 
 print("ALL MATCHING TESTS PASSED")

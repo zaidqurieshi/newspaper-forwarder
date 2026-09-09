@@ -26,7 +26,7 @@ client = TelegramClient(
 
 async def main():
 
-    channel_id = -1003645659794
+    channel_id = -1002414447366
 
     print()
     print("======================================")

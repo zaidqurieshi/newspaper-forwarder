@@ -71,7 +71,12 @@ client = TelegramClient(
 # TELEGRAM CHANNELS
 # ============================================================
 
-INDIAN_CHANNEL = -1003645659794
+INDIAN_CHANNEL = int(
+    os.getenv(
+        "TELEGRAM_INDIAN_CHANNEL",
+        "-1002414447366"
+    )
+)
 
 INTERNATIONAL_CHANNEL = -1001580607147
 
@@ -629,83 +634,6 @@ def identify_indian_paper(
 
 
     # --------------------------------------------------------
-    # HINDUSTAN TIMES
-    #
-    # Only the MAIN Delhi edition is forwarded.
-    # We treat "HT ● Delhi" (or "Hindustan Times - Delhi",
-    # "HT Delhi", etc.) as the main paper. Every other
-    # Delhi-area variant (North/South/East/West Delhi,
-    # Delhi City, School Delhi, Noida, Gurgaon, etc.) and
-    # every non-Delhi city is excluded, as is anything that
-    # looks like an editorial / supplement / magazine file.
-    # --------------------------------------------------------
-
-    if re.search(
-        r"\bht\b"
-        r"|hindustan[\s_-]+times"
-        r"|the[\s_-]+hindustan[\s_-]+times",
-        text
-    ):
-
-        # First, drop any obvious editorial / supplement /
-        # special-section file (e.g. "HT School", "HT Op-Ed",
-        # "HT Editorial", "HT Magazine", "HT Lite", "HT
-        # Buzz", "HT HT City", "HT Live", etc.).
-        if re.search(
-            r"\beditorial\b"
-            r"|\bop[\s_-]+ed\b"
-            r"|\bsupplement\b"
-            r"|\bmagazine\b"
-            r"|\bschool\b"
-            r"|\blite\b"
-            r"|\bbuzz\b"
-            r"|\bcity\b"
-            r"|\blive\b",
-            text
-        ):
-
-            return None
-
-
-        # Must mention Delhi to be considered.
-        if not _has_delhi_keyword(text):
-
-            return None
-
-
-        # Drop any non-Delhi city (Mumbai, Pune, Lucknow, ...).
-        if _is_excluded_edition(
-            text,
-            HT_EXCLUDED_EDITIONS
-        ):
-
-            return None
-
-
-        # Drop Delhi-area sub-editions (North/South/East/West
-        # Delhi, Delhi City, etc.) so that only the main
-        # "HT ● Delhi" file is forwarded.
-        if re.search(
-            r"(north|south|east|west|ncr|school)"
-            r"[\s_-]+delhi"
-            r"|delhi[\s_-]+city"
-            r"|\bdelhi[\s_-]+ncr\b"
-            r"|\bgreater[\s_-]+noida\b"
-            r"|\bnoida\b"
-            r"|\bgurgaon\b"
-            r"|\bgurugram\b"
-            r"|\bfaridabad\b"
-            r"|\bghaziabad\b",
-            text
-        ):
-
-            return None
-
-
-        return "Hindustan Times"
-
-
-    # --------------------------------------------------------
     # TIMES OF INDIA
     #
     # Match TOI (or "Times of India") only when the file
@@ -727,30 +655,6 @@ def identify_indian_paper(
             ):
 
                 return "Times of India"
-
-
-    # --------------------------------------------------------
-    # ECONOMIC TIMES
-    #
-    # Match ET (or "Economic Times") only when the file
-    # refers to a Delhi-region edition.
-    # --------------------------------------------------------
-
-    if re.search(
-        r"\beconomic[\s_-]+times\b"
-        r"|\bet\b",
-        text
-    ):
-
-        if _has_delhi_keyword(text):
-
-            if not _is_excluded_edition(
-                text,
-                ET_EXCLUDED_EDITIONS
-            ):
-
-                return "Economic Times"
-
 
     return None
 
@@ -1165,6 +1069,7 @@ def is_promotional_page(text):
     indicators = [
         "newstg8",
         "newstg",
+        "8890050582",
         "8890005082",
         "save my contact number",
         "to get all the popular newspapers",
@@ -1179,6 +1084,7 @@ def is_promotional_page(text):
         "all english newspapers",
         "join our telegram channel",
         "english_newspaper_banna",
+        "t.me/english_newspaper_banna",
     ]
 
     matches = 0
@@ -1189,10 +1095,13 @@ def is_promotional_page(text):
 
             matches += 1
 
-    if "newstg8" in text:
-        return True
-
-    if "t.me/newstg8" in text:
+    if (
+        "newstg8" in text
+        or "t.me/newstg8" in text
+        or "english_newspaper_banna" in text
+        or "t.me/english_newspaper_banna" in text
+        or "8890050582" in text
+    ):
         return True
 
     return matches >= 2
